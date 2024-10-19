@@ -2,21 +2,17 @@ package com.igrium.replayfps.core.channel;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-
 import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.channel.type.ChannelTypes;
 import com.igrium.replayfps.core.channel.type.PlaceholderChannel;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
 import com.igrium.replayfps.core.recording.ClientCaptureContext;
-
 import net.minecraft.util.Identifier;
 
 public class ChannelHandlers {
-    
     public static final BiMap<Identifier, ChannelHandler<?>> REGISTRY = HashBiMap.create();
 
-    public static final ChannelHandler<?> DUMMY = register(new DummyChannelHandler(), new Identifier("replayfps:dummy"));
-
+    public static final ChannelHandler<?> DUMMY = register(new DummyChannelHandler(), Identifier.of("replayfps:dummy"));
 
     public static class PlaceholderChannelHandler implements ChannelHandler<Object> {
         private final ChannelType<Object> type;
@@ -53,7 +49,6 @@ public class ChannelHandlers {
     }
 
     private static class DummyChannelHandler implements ChannelHandler<Short> {
-
         @Override
         public ChannelType<Short> getChannelType() {
             return ChannelTypes.SHORT;
@@ -67,6 +62,5 @@ public class ChannelHandlers {
         @Override
         public void apply(Short val, ClientPlaybackContext context) {
         }
-        
     }
 }

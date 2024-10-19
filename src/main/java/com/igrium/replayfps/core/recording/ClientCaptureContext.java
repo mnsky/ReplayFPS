@@ -14,8 +14,6 @@ import net.minecraft.entity.Entity;
 public interface ClientCaptureContext {
     MinecraftClient client();
 
-    float tickDelta();
-
     Entity cameraEntity();
 
     Camera camera();

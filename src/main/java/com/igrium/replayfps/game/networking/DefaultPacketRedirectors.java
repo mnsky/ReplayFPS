@@ -9,7 +9,6 @@ public class DefaultPacketRedirectors {
     public static void registerDefaults() {
         PacketRedirectors.register(new HealthHungerRedirector());
         PacketRedirectors.register(new ExperienceUpdateRedirector());
-        
         PacketRedirectors.register(new EntityEquipmentUpdateRedirector());
     }
 }

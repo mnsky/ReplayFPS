@@ -2,13 +2,12 @@ package com.igrium.replayfps.core.networking.event;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
-import net.fabricmc.fabric.impl.networking.payload.ResolvablePayload;
+import net.minecraft.network.packet.CustomPayload;
 
 /**
- * Called when a custom packet of any kind is recieved on the client.
+ * Called when a custom packet of any kind is received on the client.
  */
 public interface CustomPacketReceivedEvent {
-
     public static final Event<CustomPacketReceivedEvent> EVENT = EventFactory.createArrayBacked(
             CustomPacketReceivedEvent.class,
             listeners -> payload -> {
@@ -22,11 +21,11 @@ public interface CustomPacketReceivedEvent {
             });
 
     /**
-     * Called whenever a custom packet of any kind is recieved on the client.
+     * Called whenever a custom packet of any kind is received on the client.
      * 
      * @param payload The packet's payload.
      * @return If this packet should be "consumed". If <code>true</code> no other
-     *         recievers (including the registered one) will recieve the packet.
+     *         receivers (including the registered one) will receive the packet.
      */
-    public boolean onPacketReceived(ResolvablePayload payload);
+    public boolean onPacketReceived(CustomPayload payload);
 }

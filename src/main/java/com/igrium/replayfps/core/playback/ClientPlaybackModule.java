@@ -1,11 +1,5 @@
 package com.igrium.replayfps.core.playback;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.igrium.replayfps.ReplayFPS;
 import com.igrium.replayfps.core.networking.FakePacketManager;
 import com.igrium.replayfps.core.networking.PacketRedirectors;
@@ -21,9 +15,7 @@ import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.events.ReplayClosingCallback;
 import com.replaymod.replay.events.ReplayOpenedCallback;
 import com.replaymod.replaystudio.replay.ReplayFile;
-
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.impl.networking.payload.ResolvablePayload;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.Camera;
@@ -31,8 +23,14 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.world.GameMode;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
+import java.util.Optional;
 
 public class ClientPlaybackModule extends EventRegistrations implements Module {
     private static ClientPlaybackModule instance;
@@ -141,15 +139,14 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     }
 
     { CustomPacketReceivedEvent.EVENT.register(this::onCustomPacketReceived); }
-    private boolean onCustomPacketReceived(ResolvablePayload payload) {
-        if (FakePacketManager.isFakePacket(payload.id())) {
+    private boolean onCustomPacketReceived(CustomPayload payload) {
+        if (FakePacketManager.isFakePacket(payload.getId().id())) {
             if (fakePacketManager != null) {
                 return fakePacketManager.processPacket(payload);
             } else {
                 return true;
             }
         }
-        
         return false;
     }
 

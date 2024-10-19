@@ -27,11 +27,11 @@
         "replayfps.mixins.gameplay.json"
     ],
     "depends": {
-        "fabricloader": ">=0.14.24",
-        "minecraft": "~1.20.2",
-        "java": ">=17",
+        "fabricloader": ">=0.16.7",
+        "minecraft": "~1.21.1",
+        "java": ">=21",
         "fabric-api": "*",
-        "replaymod": ">=1.20.2-2.6.14",
+        "replaymod": ">=1.21-2.6.19",
         "cloth-config": ">=11.1.106"
     },
     "suggests": {

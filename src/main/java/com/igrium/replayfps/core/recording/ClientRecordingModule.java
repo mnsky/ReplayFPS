@@ -1,11 +1,5 @@
 package com.igrium.replayfps.core.recording;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.channel.ChannelHandlers;
 import com.igrium.replayfps.core.events.ChannelRegistrationCallback;
@@ -16,7 +10,6 @@ import com.replaymod.core.ReplayMod;
 import com.replaymod.lib.de.johni0702.minecraft.gui.utils.EventRegistrations;
 import com.replaymod.recording.packet.PacketListener;
 import com.replaymod.replaystudio.replay.ReplayFile;
-
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -27,6 +20,11 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class ClientRecordingModule extends EventRegistrations implements Module {
@@ -160,11 +158,6 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         @Override
         public MinecraftClient client() {
             return client;
-        }
-
-        @Override
-        public float tickDelta() {
-            return renderContext.tickDelta();
         }
 
         @Override

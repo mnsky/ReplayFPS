@@ -4,31 +4,16 @@ import com.igrium.replayfps.core.networking.FakePacketManager;
 import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.igrium.replayfps.game.event.ClientPlayerEvents;
-
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 
-public record UpdateSelectedSlotFakePacket(int slot) implements FabricPacket {
-
-    public static final PacketType<UpdateSelectedSlotFakePacket> TYPE = PacketType
-            .create(new Identifier("replayfps:update_slot"), UpdateSelectedSlotFakePacket::read);
-
-    public static UpdateSelectedSlotFakePacket read(PacketByteBuf buf) {
-        return new UpdateSelectedSlotFakePacket(buf.readInt());
-    }
-
-    @Override
-    public void write(PacketByteBuf buf) {
-        buf.writeInt(slot);
-    }
-
-    @Override
-    public PacketType<?> getType() {
-        return TYPE;
-    }
+public record UpdateSelectedSlotFakePacket(int slot) implements CustomPayload {
+    public static final CustomPayload.Id<UpdateSelectedSlotFakePacket> ID = new CustomPayload.Id<>(Identifier.of("rp_replayfps:update_slot"));
+    public static final PacketCodec<RegistryByteBuf, UpdateSelectedSlotFakePacket> CODEC = PacketCodec.tuple(PacketCodecs.INTEGER, UpdateSelectedSlotFakePacket::slot, UpdateSelectedSlotFakePacket::new);
 
     public static void apply(UpdateSelectedSlotFakePacket packet, ClientPlaybackModule module,
             ClientCapPlayer clientCap, PlayerEntity localPlayer) {
@@ -42,5 +27,9 @@ public record UpdateSelectedSlotFakePacket(int slot) implements FabricPacket {
             FakePacketManager.injectFakePacket(new UpdateSelectedSlotFakePacket(slot));
         });
     }
-    
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+        return ID;
+    }
 }

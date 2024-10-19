@@ -1,29 +1,21 @@
 package com.igrium.replayfps.core.recording;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.channel.ChannelHandlers;
 import com.igrium.replayfps.core.channel.ChannelHandlers.PlaceholderChannelHandler;
 import com.mojang.logging.LogUtils;
-
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
+import org.slf4j.Logger;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientCapHeader {
-
     public static class HeaderFormatException extends IOException {
         public HeaderFormatException() {
 
@@ -34,7 +26,7 @@ public class ClientCapHeader {
         }
     }
     
-    private static final Identifier INVALID_IDENTIFIER = new Identifier("replayfps:invalid");
+    private static final Identifier INVALID_IDENTIFIER = Identifier.of("replayfps:invalid");
     private Logger logger = LogUtils.getLogger();
 
     private List<ChannelHandler<?>> channels;
@@ -161,7 +153,7 @@ public class ClientCapHeader {
         String name = nbt.getString("id");
         Identifier id;
         try {
-            id = new Identifier(name);
+            id = Identifier.of(name);
         } catch (InvalidIdentifierException e) {
             throw new HeaderFormatException("Invalid channel id: " + name);
         }

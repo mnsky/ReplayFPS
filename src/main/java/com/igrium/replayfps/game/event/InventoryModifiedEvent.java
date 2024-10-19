@@ -1,13 +1,12 @@
 package com.igrium.replayfps.game.event;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import com.igrium.replayfps.game.ItemSlot;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
+import java.util.List;
 
 public interface InventoryModifiedEvent {
-
     public Event<InventoryModifiedEvent> EVENT = EventFactory.createArrayBacked(
         InventoryModifiedEvent.class, listeners -> (inv, updates) -> {
             for (var l : listeners) {
@@ -15,5 +14,5 @@ public interface InventoryModifiedEvent {
             }
         });
     
-    public void onInventoryModified(PlayerInventory inventory, Int2ObjectMap<ItemStack> updates);
+    public void onInventoryModified(PlayerInventory inventory, List<ItemSlot> updates);
 }
