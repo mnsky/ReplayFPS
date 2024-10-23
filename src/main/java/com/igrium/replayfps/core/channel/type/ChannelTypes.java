@@ -1,13 +1,6 @@
 package com.igrium.replayfps.core.channel.type;
 
-import com.igrium.replayfps.core.channel.type.NumberChannel.ByteChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.DoubleChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.FloatChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.IntegerChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.LongChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.ShortChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.UnsignedByteChannel;
-import com.igrium.replayfps.core.channel.type.NumberChannel.UnsignedShortChannel;
+import com.igrium.replayfps.core.channel.type.NumberChannel.*;
 
 public class ChannelTypes {
     public static final ByteChannel BYTE = new ByteChannel();
@@ -21,7 +14,7 @@ public class ChannelTypes {
 
     public static final Matrix4fChannelType MATRIX4F = new Matrix4fChannelType();
     public static final Vector2fChannelType VECTOR2F = new Vector2fChannelType();
-    
+
     public static final Vec3dChannelType VEC3D = new Vec3dChannelType();
 
     public static PlaceholderChannel placeholder(int size) {

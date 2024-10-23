@@ -17,6 +17,7 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
+
 import java.io.IOException;
 
 public record UpdateHotbarFakePacket(Int2ObjectMap<ItemStack> map) implements CustomPayload {

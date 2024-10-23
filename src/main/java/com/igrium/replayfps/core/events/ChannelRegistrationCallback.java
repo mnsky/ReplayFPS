@@ -1,11 +1,10 @@
 package com.igrium.replayfps.core.events;
 
-import java.util.function.Consumer;
-
 import com.igrium.replayfps.core.channel.ChannelHandler;
-
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+
+import java.util.function.Consumer;
 
 
 /**

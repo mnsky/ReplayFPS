@@ -1,10 +1,10 @@
 package com.igrium.replayfps.core.util;
 
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public class GlobalReplayContext {
     /**

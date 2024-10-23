@@ -3,12 +3,7 @@ package com.igrium.replayfps.core.playback;
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.recording.ClientCapHeader;
 
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents the contents of a single frame before its written to disk.
@@ -30,6 +25,7 @@ public record UnserializedFrame(ClientCapHeader header, Object[] values) {
 
     /**
      * Get a map of all channels and their respective values.
+     *
      * @return Channel map.
      */
     public Map<ChannelHandler<?>, Object> getValues() {
@@ -38,7 +34,7 @@ public record UnserializedFrame(ClientCapHeader header, Object[] values) {
 
     /**
      * Get the value belonging to a particular channel.
-     * 
+     *
      * @param <T>     Channel type.
      * @param channel The channel.
      * @return The value. <code>null</code> if it does not exist for this frame.
@@ -101,6 +97,6 @@ public record UnserializedFrame(ClientCapHeader header, Object[] values) {
             currentIndex++;
             return new AbstractMap.SimpleEntry<>(key, value);
         }
-        
+
     }
 }

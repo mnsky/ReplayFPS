@@ -1,11 +1,11 @@
 package com.igrium.replayfps.core.channel;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-
 import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
 import com.igrium.replayfps.core.recording.ClientCaptureContext;
+
+import java.io.DataInput;
+import java.io.DataOutput;
 
 /**
  * Handles the application and capturing of a specific animation channel.

@@ -20,6 +20,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
@@ -36,7 +37,7 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
     public static ClientRecordingModule getInstance() {
         return instance;
     }
-    
+
     private final ReplayMod replayMod;
 
     private Optional<ClientCapRecorder> activeRecording = Optional.empty();
@@ -62,10 +63,13 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
 
     private ClientCapHeader queuedHeader;
 
-    { on(RecordingEvents.STARTED_RECORDING, this::onStartedRecording); }
+    {
+        on(RecordingEvents.STARTED_RECORDING, this::onStartedRecording);
+    }
+
     protected void onStartedRecording(PacketListener listener, ReplayFile file) {
         List<ChannelHandler<?>> channels = new LinkedList<>();
-        
+
         ChannelRegistrationCallback.EVENT.invoker().createChannels(handler -> {
             if (!ChannelHandlers.REGISTRY.inverse().containsKey(handler)) {
                 throw new IllegalArgumentException("The supplied channel handler has not been registered!");
@@ -86,7 +90,10 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         }
     }
 
-    { on(RecordingEvents.STOP_RECORDING, this::onStoppingRecording); }
+    {
+        on(RecordingEvents.STOP_RECORDING, this::onStoppingRecording);
+    }
+
     protected void onStoppingRecording(PacketListener listener, ReplayFile file) {
         if (isRecording()) stopRecording();
     }
@@ -127,9 +134,10 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
     public boolean isRecording() {
         return activeRecording.isPresent();
     }
-    
+
     /**
      * Stop recording the client-cap.
+     *
      * @throws IllegalStateException If we're not currently recording.
      */
     public void stopRecording() throws IllegalStateException {
@@ -189,7 +197,7 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         public WorldRenderContext renderContext() {
             return renderContext;
         }
-        
+
     }
 }
 

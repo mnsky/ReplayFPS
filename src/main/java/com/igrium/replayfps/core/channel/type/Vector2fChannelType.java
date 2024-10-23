@@ -1,11 +1,11 @@
 package com.igrium.replayfps.core.channel.type;
 
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import org.joml.Vector2f;
-import org.joml.Vector2fc;
 
 public class Vector2fChannelType implements ChannelType<Vector2fc> {
 
@@ -36,7 +36,7 @@ public class Vector2fChannelType implements ChannelType<Vector2fc> {
     public Vector2fc defaultValue() {
         return new Vector2f();
     }
-    
+
     @Override
     public Vector2fc interpolate(Vector2fc from, Vector2fc to, float delta) {
         return from.lerp(to, delta, new Vector2f());
@@ -49,6 +49,6 @@ public class Vector2fChannelType implements ChannelType<Vector2fc> {
 
     @Override
     public float[] getRawValues(Vector2fc value) {
-        return new float[] { value.x(), value.y() };
+        return new float[]{value.x(), value.y()};
     }
 }

@@ -1,7 +1,6 @@
 package com.igrium.replayfps.game.networking.redirector;
 
 import com.igrium.replayfps.core.networking.PacketRedirector;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -17,7 +16,7 @@ public class ScreenHandlerSlotUpdateRedirector implements PacketRedirector<Scree
 
     @Override
     public boolean shouldRedirect(ScreenHandlerSlotUpdateS2CPacket packet, PlayerEntity localPlayer,
-            MinecraftClient client) {
+                                  MinecraftClient client) {
         return true;
     }
 
@@ -25,7 +24,7 @@ public class ScreenHandlerSlotUpdateRedirector implements PacketRedirector<Scree
     public void redirect(ScreenHandlerSlotUpdateS2CPacket packet, PlayerEntity localPlayer, MinecraftClient client) {
         client.execute(() -> doRedirect(packet, localPlayer, client));
     }
-    
+
     private void doRedirect(ScreenHandlerSlotUpdateS2CPacket packet, PlayerEntity localPlayer, MinecraftClient client) {
         ItemStack itemStack = packet.getStack();
         int slot = packet.getSlot();
@@ -42,7 +41,7 @@ public class ScreenHandlerSlotUpdateRedirector implements PacketRedirector<Scree
                 }
 
                 localPlayer.playerScreenHandler.setStackInSlot(slot, packet.getRevision(), itemStack);
-                
+
                 // TODO: find a cleaner way to do this.
                 localPlayer.getInventory().setStack(slot, itemStack);
             }

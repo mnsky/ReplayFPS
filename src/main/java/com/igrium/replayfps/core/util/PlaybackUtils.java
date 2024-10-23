@@ -4,22 +4,24 @@ import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.replaymod.simplepathing.ReplayModSimplePathing;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 
 public final class PlaybackUtils {
-    private PlaybackUtils() {};
+    private PlaybackUtils() {
+    }
+
+    ;
 
     /**
      * If there is a client-capture playing, get the ID of the local player it was
      * captured on. Should only be used when you don't have access to a
      * {@link ClientPlaybackContext}.
-     * 
+     *
      * @return ID of the player who captured the replay, or <code>null</code> if there is no
-     *         client-capture playing.
+     * client-capture playing.
      */
     public static Integer getCurrentPlaybackPlayerID() {
         ClientCapPlayer player = ClientPlaybackModule.getInstance().getCurrentPlayer();
@@ -32,9 +34,9 @@ public final class PlaybackUtils {
      * If there is a client-capture playing, get the local player that it was
      * captured on. Should only be called when you don't have access to a
      * {@link ClientPlaybackContext}.
-     * 
+     *
      * @return The player who captured the replay. <code>null</code> if there is no
-     *         client-capture playing or the player could not be found.
+     * client-capture playing or the player could not be found.
      */
     @SuppressWarnings("resource")
     public static PlayerEntity getCurrentPlaybackPlayer() {
@@ -43,7 +45,7 @@ public final class PlaybackUtils {
 
         Integer id = getCurrentPlaybackPlayerID();
         if (id == null) return null;
-        
+
         if (world.getEntityById(id) instanceof PlayerEntity player) {
             return player;
         }
@@ -53,10 +55,10 @@ public final class PlaybackUtils {
     /**
      * Determine if the current camera entity is the player that recorded the
      * current client-capture.
-     * 
+     *
      * @return <code>true</code> if we're viewing from the perspective from the
-     *         original capture player. <code>false</code> if we're not playing a
-     *         client-capture or we're not looking through their perspective.
+     * original capture player. <code>false</code> if we're not playing a
+     * client-capture or we're not looking through their perspective.
      */
     @SuppressWarnings("resource")
     public static boolean isViewingPlaybackPlayer() {
@@ -64,12 +66,12 @@ public final class PlaybackUtils {
         if (camera == null) return false;
         return Integer.valueOf(camera.getId()).equals(getCurrentPlaybackPlayerID());
     }
-    
+
     /**
      * If we're currently in the replay editor.
-     * 
+     *
      * @return <code>true</code> if we're in the replay editor or rendering.
-     *         <code>false</code> if we're in the main menu or in a regular game.
+     * <code>false</code> if we're in the main menu or in a regular game.
      */
     public static boolean isPlayingReplay() {
         // TODO: Determine if there's something more reliable than this hack.

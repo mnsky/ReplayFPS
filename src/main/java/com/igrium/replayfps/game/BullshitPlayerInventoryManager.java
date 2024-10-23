@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,7 @@ public class BullshitPlayerInventoryManager {
     }
 
     private static ItemStack[] prevInventory = Collections.nCopies(36, ItemStack.EMPTY).toArray(new ItemStack[36]);
-    
+
     private static void onEndTick(MinecraftClient client) {
         PlayerEntity player = client.player;
         if (player == null) return;

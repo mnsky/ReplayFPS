@@ -6,6 +6,7 @@ import com.replaymod.replaystudio.lib.viaversion.protocols.v1_20_2to1_20_3.Proto
 import com.replaymod.replaystudio.lib.viaversion.protocols.v1_20_3to1_20_5.Protocol1_20_3To1_20_5;
 import com.replaymod.replaystudio.lib.viaversion.protocols.v1_20_5to1_21.Protocol1_20_5To1_21;
 import com.replaymod.replaystudio.lib.viaversion.protocols.v1_20to1_20_2.Protocol1_20To1_20_2;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -45,5 +46,6 @@ public class ItemIdCompatibility {
                 .toList();
     }
 
-    private record VersionAndMappings(ProtocolVersion toVersion, MappingData mapping) {}
+    private record VersionAndMappings(ProtocolVersion toVersion, MappingData mapping) {
+    }
 }

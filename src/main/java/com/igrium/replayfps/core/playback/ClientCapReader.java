@@ -1,23 +1,14 @@
 package com.igrium.replayfps.core.playback;
 
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.nio.channels.Channels;
-
-import org.jetbrains.annotations.Nullable;
 import com.google.common.io.CountingInputStream;
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.recording.ClientCapHeader;
 import com.igrium.replayfps.core.util.NoHeaderException;
 import com.mojang.logging.LogUtils;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.*;
+import java.nio.channels.Channels;
 
 /**
  * Reads a ClientCap file.
@@ -32,7 +23,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Create a ClientCap reader.
-     * 
+     *
      * @param stream An input stream containing the file contents. The entire file
      *               will be read and stored in a temp directory, where it can be
      *               randomly accessed.
@@ -42,7 +33,8 @@ public class ClientCapReader implements Closeable {
         File tempFile = File.createTempFile("client", ".ccap");
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
             stream.transferTo(out);
-        };
+        }
+        ;
 
         tempFile.deleteOnExit();
         this.file = new RandomAccessFile(tempFile, "r");
@@ -50,6 +42,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Create a ClientCap reader.
+     *
      * @param file RandomAccessFile to use. Will be closed upon reader close.
      */
     public ClientCapReader(RandomAccessFile file) {
@@ -58,6 +51,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Create a ClientCap reader.
+     *
      * @param file File to read.
      * @throws FileNotFoundException If the file does not exist.
      */
@@ -72,7 +66,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Read the header of this file.
-     * 
+     *
      * @throws IOException           If an IO exception occurs.
      * @throws IllegalStateException If the header has already been read.
      */
@@ -80,7 +74,7 @@ public class ClientCapReader implements Closeable {
         if (header != null) {
             throw new IllegalStateException("The header has already been read!");
         }
-        
+
         CountingInputStream counter = new CountingInputStream(Channels.newInputStream(file.getChannel()));
         header = new ClientCapHeader();
         header.readHeader(counter);
@@ -92,6 +86,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Get the position of the playhead.
+     *
      * @return Index of the frame that will be read on next call to {@link #readFrame()}.
      */
     public int getPlayhead() {
@@ -109,9 +104,9 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Read the current frame and advance the playhead by 1.
-     * 
+     *
      * @return An array of all channels and their parsed values. If we've reached
-     *         the end of the file, this array is empty.
+     * the end of the file, this array is empty.
      * @throws IOException       If an IO exception occurs while reading the file.
      * @throws NoHeaderException If the header has not been read.
      */
@@ -138,7 +133,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Get the byte offset of a given frame in the file.
-     * 
+     *
      * @param frame Frame index.
      * @return Byte offset of the beginning of the frame.
      * @throws NoHeaderException If the header has not been read (required for frame
@@ -151,9 +146,9 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Count the number of frames within the file.
-     * 
+     *
      * @return Number of frames. <code>-1</code> if there's an error reading the
-     *         file.
+     * file.
      * @throws NoHeaderException If the header has not been read (required for
      *                           frame length.)
      */
@@ -165,10 +160,10 @@ public class ClientCapReader implements Closeable {
             return -1;
         }
     }
-    
+
     /**
      * Count the number of frames within the file.
-     * 
+     *
      * @return Number of frames.
      * @throws NoHeaderException If the header has not been read (required for frame
      *                           length.)
@@ -181,7 +176,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Jump to a specific frame in the file, queuing it for {@link #readFrame()}.
-     * 
+     *
      * @param frame Frame index.
      * @throws NoHeaderException         If the file header has not been read.
      * @throws IndexOutOfBoundsException If frame is less than 0.
@@ -194,7 +189,7 @@ public class ClientCapReader implements Closeable {
         if (frame < 0) {
             throw new IndexOutOfBoundsException(frame);
         }
-        
+
         long offset = getFrameOffset(frame);
         file.seek(offset);
         endOfFile = offset > file.length();
@@ -210,7 +205,7 @@ public class ClientCapReader implements Closeable {
 
     /**
      * Close this reader and the underlying file.
-     * 
+     *
      * @throws IOException If an IO exception is thrown when closing the file.
      */
     @Override

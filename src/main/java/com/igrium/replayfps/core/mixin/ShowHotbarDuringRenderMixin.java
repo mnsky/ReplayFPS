@@ -1,12 +1,11 @@
 package com.igrium.replayfps.core.mixin;
 
+import com.igrium.replayfps.ReplayFPS;
+import com.igrium.replayfps.core.util.PlaybackUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import com.igrium.replayfps.ReplayFPS;
-import com.igrium.replayfps.core.util.PlaybackUtils;
 
 @Mixin(targets = "com.replaymod.replay.camera.CameraEntity$EventHandler")
 public class ShowHotbarDuringRenderMixin {

@@ -1,7 +1,6 @@
 package com.igrium.replayfps.game.networking.redirector;
 
 import com.igrium.replayfps.core.networking.PacketRedirector;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -16,7 +15,7 @@ public class UpdateSelectedSlotRedirector implements PacketRedirector<UpdateSele
 
     @Override
     public boolean shouldRedirect(UpdateSelectedSlotS2CPacket packet, PlayerEntity localPlayer,
-            MinecraftClient client) {
+                                  MinecraftClient client) {
         return true;
     }
 
@@ -28,5 +27,5 @@ public class UpdateSelectedSlotRedirector implements PacketRedirector<UpdateSele
             }
         });
     }
-    
+
 }

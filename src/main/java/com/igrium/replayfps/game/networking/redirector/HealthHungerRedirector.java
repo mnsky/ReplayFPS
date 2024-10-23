@@ -1,7 +1,6 @@
 package com.igrium.replayfps.game.networking.redirector;
 
 import com.igrium.replayfps.core.networking.PacketRedirector;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.HealthUpdateS2CPacket;

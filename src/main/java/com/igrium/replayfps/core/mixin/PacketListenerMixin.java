@@ -1,19 +1,17 @@
 package com.igrium.replayfps.core.mixin;
 
-import java.util.concurrent.ExecutorService;
-
+import com.igrium.replayfps.core.events.RecordingEvents;
+import com.igrium.replayfps.core.util.TimecodeProvider;
+import com.replaymod.recording.packet.PacketListener;
+import com.replaymod.replaystudio.replay.ReplayFile;
+import io.netty.channel.ChannelHandlerContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.igrium.replayfps.core.events.RecordingEvents;
-import com.igrium.replayfps.core.util.TimecodeProvider;
-import com.replaymod.recording.packet.PacketListener;
-import com.replaymod.replaystudio.replay.ReplayFile;
-
-import io.netty.channel.ChannelHandlerContext;
+import java.util.concurrent.ExecutorService;
 
 @Mixin(PacketListener.class)
 public class PacketListenerMixin implements TimecodeProvider {

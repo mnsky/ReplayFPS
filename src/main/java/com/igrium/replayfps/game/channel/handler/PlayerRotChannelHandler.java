@@ -1,15 +1,13 @@
 package com.igrium.replayfps.game.channel.handler;
 
-import org.joml.Vector2f;
-import org.joml.Vector2fc;
-
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.channel.type.ChannelTypes;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
 import com.igrium.replayfps.core.recording.ClientCaptureContext;
-
 import net.minecraft.client.network.ClientPlayerEntity;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
 
 public class PlayerRotChannelHandler implements ChannelHandler<Vector2fc> {
 
@@ -38,7 +36,7 @@ public class PlayerRotChannelHandler implements ChannelHandler<Vector2fc> {
             player.prevHeadYaw = val.y();
         });
     }
-    
+
     @Override
     public boolean shouldInterpolate() {
         return true;

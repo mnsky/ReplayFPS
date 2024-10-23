@@ -1,11 +1,11 @@
 package com.igrium.replayfps.core.channel.type;
 
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 
 public class Matrix4fChannelType implements ChannelType<Matrix4fc> {
 
@@ -37,7 +37,7 @@ public class Matrix4fChannelType implements ChannelType<Matrix4fc> {
             out.writeFloat(buffer[i]);
         }
     }
-    
+
     @Override
     public Matrix4fc defaultValue() {
         return new Matrix4f();

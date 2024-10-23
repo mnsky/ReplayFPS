@@ -13,12 +13,13 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 
 public class FakePacketManager {
     public static final String NAMESPACE = "rp_replayfps";
 
-    public static enum SpectatorRule { APPLY, SKIP }
+    public static enum SpectatorRule {APPLY, SKIP}
 
     private final MinecraftClient client;
     private final ClientPlaybackModule module;
@@ -43,9 +44,10 @@ public class FakePacketManager {
     public void initReceivers() {
         FakePacketRegistrationCallback.EVENT.invoker().register(this);
     }
-    
+
     /**
      * Determine if a given packet should be parsed as a fake packet.
+     *
      * @param id Packet ID.
      * @return If this is a fake packet.
      */
@@ -55,6 +57,7 @@ public class FakePacketManager {
 
     /**
      * Process an incoming custom packet.
+     *
      * @param payload Payload to process.
      * @return If this packet was consumed as a fake packet.
      */
@@ -88,7 +91,8 @@ public class FakePacketManager {
 
     /**
      * Set the behavior for when a fake packet is received while not spectating the player.
-     * @param id ID of the packet to apply to.
+     *
+     * @param id            ID of the packet to apply to.
      * @param spectatorRule Spectator rule.
      */
     public <T extends CustomPayload> void addSpectatorRule(Identifier id, SpectatorRule spectatorRule) {
@@ -97,6 +101,7 @@ public class FakePacketManager {
 
     /**
      * Inject a fake packet into the replay packet stream.
+     *
      * @param packet Fake packet.
      */
     public static void injectFakePacket(CustomPayload packet) {

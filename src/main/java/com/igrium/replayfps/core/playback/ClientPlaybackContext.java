@@ -1,14 +1,13 @@
 package com.igrium.replayfps.core.playback;
 
-import java.util.Optional;
-
 import com.replaymod.replay.ReplayHandler;
-
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+
+import java.util.Optional;
 
 public interface ClientPlaybackContext {
     /**
@@ -35,7 +34,7 @@ public interface ClientPlaybackContext {
      * The active camera.
      */
     Camera camera();
-    
+
     /**
      * The current timestamp in the replay (milliseconds).
      */

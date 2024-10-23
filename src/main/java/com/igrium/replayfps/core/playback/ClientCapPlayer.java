@@ -1,20 +1,18 @@
 package com.igrium.replayfps.core.playback;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import org.jetbrains.annotations.Nullable;
-
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.util.AnimationUtils;
 import com.igrium.replayfps.core.util.ConcurrentBuffer;
 import com.igrium.replayfps.core.util.GlobalReplayContext;
 import com.mojang.logging.LogUtils;
-
 import net.minecraft.client.MinecraftClient;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientCapPlayer implements Closeable {
     private final ClientCapReader reader;
@@ -32,6 +30,7 @@ public class ClientCapPlayer implements Closeable {
 
     /**
      * Create a ClientCap player.
+     *
      * @param reader Reader to use.
      * @throws IOException If an IO exception occurs reading the file header.
      */
@@ -61,6 +60,7 @@ public class ClientCapPlayer implements Closeable {
 
     /**
      * Read and apply the cliencap animation on the current frame.
+     *
      * @param context Playback context.
      */
     public void tickPlayer(ClientPlaybackContext context) {
@@ -69,17 +69,17 @@ public class ClientCapPlayer implements Closeable {
         int frameNumber = -1;
         try {
             // TODO: figure out why replay appears half a second behind instead of this cheeky workaround.
-            int timestamp = context.timestamp(); 
+            int timestamp = context.timestamp();
             int framerate = reader.getHeader().getFramerate();
             int framerateBase = reader.getHeader().getFramerateBase();
 
             frameNumber = AnimationUtils.countFrames(timestamp, framerate, framerateBase);
 
             if (frameNumber < 0) return;
-            
+
             long prevFrameTime = AnimationUtils.getDuration(frameNumber, framerate, framerateBase);
             long nextFrameTime = AnimationUtils.getDuration(frameNumber + 1, framerate, framerateBase);
-            
+
             float delta;
             if (nextFrameTime == prevFrameTime) {
                 delta = 0;
@@ -114,7 +114,7 @@ public class ClientCapPlayer implements Closeable {
         }
 
     }
-    
+
 
     /**
      * Called every time the client ticks (instead of every frame).
@@ -142,7 +142,7 @@ public class ClientCapPlayer implements Closeable {
             return lastFrameA;
         if (index == lastFrameBIndex && lastFrameB != null)
             return lastFrameB;
-        
+
         if (index != buffer.getIndex()) {
             buffer.seek(index);
             LogUtils.getLogger().info("Seeking frame " + index);
@@ -159,7 +159,7 @@ public class ClientCapPlayer implements Closeable {
 
         if (delta < 0) delta = 0;
         if (delta > 1) delta = 1;
-        
+
         if (handler.shouldInterpolate() && value2 != null) {
             T casted2 = handler.getType().cast(value2);
             applyChannelOrCache(handler, handler.getChannelType().interpolate(casted, casted2, delta), context);

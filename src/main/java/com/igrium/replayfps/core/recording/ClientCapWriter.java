@@ -1,11 +1,12 @@
 package com.igrium.replayfps.core.recording;
 
+import com.igrium.replayfps.core.channel.type.ChannelType;
+import com.igrium.replayfps.core.playback.UnserializedFrame;
+
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import com.igrium.replayfps.core.channel.type.ChannelType;
-import com.igrium.replayfps.core.playback.UnserializedFrame;
 
 public class ClientCapWriter {
     private final OutputStream out;
@@ -14,8 +15,8 @@ public class ClientCapWriter {
 
     /**
      * Create a ClientCap writer.
-     * 
-     * @param out    Output stream to write to.
+     *
+     * @param out Output stream to write to.
      */
     public ClientCapWriter(OutputStream out) {
         this.out = out;
@@ -23,7 +24,7 @@ public class ClientCapWriter {
 
     /**
      * Write a frame of animation.
-     * 
+     *
      * @param frame Frame to write
      * @throws IOException If an IO exception occurs while writing the frame.
      */
@@ -48,6 +49,7 @@ public class ClientCapWriter {
 
     /**
      * Get the number of frames that have been written.
+     *
      * @return Written frames.
      */
     public int getWrittenFrames() {

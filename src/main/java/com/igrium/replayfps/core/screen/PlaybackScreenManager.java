@@ -2,7 +2,6 @@ package com.igrium.replayfps.core.screen;
 
 import com.igrium.replayfps.ReplayFPS;
 import com.igrium.replayfps.core.util.RenderUtils;
-import com.mojang.logging.LogUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
@@ -55,9 +54,7 @@ public class PlaybackScreenManager {
             prevSizeY = -1;
         });
         this.screen = screen;
-        screen.ifPresent(s -> {
-            s.onDisplayed();
-        });
+        screen.ifPresent(Screen::onDisplayed);
     }
 
     public final void setScreen(@Nullable Screen screen) {
@@ -73,7 +70,7 @@ public class PlaybackScreenManager {
 
     public void render(DrawContext drawContext, float tickDelta) {
         if (!screen.isPresent() || !ReplayFPS.getConfig().shouldDrawScreens()) return;
-        
+
         // Don't draw over the game menu.
         if (client.currentScreen instanceof GameMenuScreen) return;
 
@@ -101,9 +98,9 @@ public class PlaybackScreenManager {
         float y1 = mouseY;
         float y2 = mouseY + 8;
 
-        RenderUtils.drawTexturedQuad(MOUSE_TEXTURE, 
-        x1, x2, y1, y2, 64, 
-        0, 1, 0, 1, context.getMatrices());
+        RenderUtils.drawTexturedQuad(MOUSE_TEXTURE,
+                x1, x2, y1, y2, 64,
+                0, 1, 0, 1, context.getMatrices());
     }
 
     public void tick() {
@@ -114,12 +111,8 @@ public class PlaybackScreenManager {
         return client;
     }
 
-    public <T> void openScreen(ScreenSerializer<?, T> serializer, Object serialized) {
-        try {
-            Screen screen = serializer.create(client, serializer.getSerializedType().cast(serialized));
-            setScreen(screen);
-        } catch (Exception e) {
-            LogUtils.getLogger().error("Error opening screen " + serializer.getScreenType().getSimpleName(), e);
-        }
+    public <T> void openScreen(ScreenState screenState) {
+        Screen screen = screenState.create(client);
+        setScreen(screen);
     }
 }

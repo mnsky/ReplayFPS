@@ -5,7 +5,6 @@ import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.channel.type.ChannelTypes;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
 import com.igrium.replayfps.core.recording.ClientCaptureContext;
-
 import net.minecraft.util.math.Vec3d;
 
 public class PlayerPosChannelHandler implements ChannelHandler<Vec3d> {

@@ -1,12 +1,12 @@
 package com.igrium.replayfps.core.util;
 
+import com.mojang.logging.LogUtils;
+
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-
-import com.mojang.logging.LogUtils;
 
 /**
  * Represents a buffer of objects that can be loaded off-thread.
@@ -20,6 +20,7 @@ public abstract class ConcurrentBuffer<T> {
 
     /**
      * Create a ConcurrentBuffer.
+     *
      * @param executor Thread to load the values on.
      */
     public ConcurrentBuffer(Executor executor) {
@@ -53,7 +54,7 @@ public abstract class ConcurrentBuffer<T> {
         this.bufferThreshold = bufferThreshold;
     }
 
-    
+
     private final Queue<T> buffer = new ConcurrentLinkedDeque<>();
     /*
      * The global index of the start of the buffer.
@@ -62,11 +63,11 @@ public abstract class ConcurrentBuffer<T> {
 
     /**
      * Called on the loading thread to load the next item in the buffer.
-     * 
+     *
      * @param index Index of the item being loaded.
      * @return The loaded value. <code>null</code> values indicate that we've
-     *         reached the end of the buffer. At this point, read calls will return
-     *         <code>null</code> instead of blocking.
+     * reached the end of the buffer. At this point, read calls will return
+     * <code>null</code> instead of blocking.
      */
     protected abstract T load(int index) throws Exception;
 
@@ -85,12 +86,13 @@ public abstract class ConcurrentBuffer<T> {
 
     /**
      * If this buffer crashed due to an error, get it here.
+     *
      * @return The error.
      */
     public Optional<Exception> getError() {
         return error;
     }
-    
+
     /**
      * If this buffer has crashed due to an error.
      */
@@ -102,6 +104,7 @@ public abstract class ConcurrentBuffer<T> {
     private volatile CountDownLatch bufferingLatch = new CountDownLatch(1);
 
     private boolean hasReachedEnd;
+
     public boolean hasReachedEnd() {
         return hasReachedEnd;
     }
@@ -109,9 +112,10 @@ public abstract class ConcurrentBuffer<T> {
     private boolean shouldBlock() {
         return buffer.isEmpty() && bufferingLatch != null && !hasReachedEnd && !hasErrored();
     }
-    
+
     /**
      * Wait for items to appear in the buffer.
+     *
      * @return Whether the thread needed to block.
      */
     protected boolean waitForBuffer() {
@@ -143,7 +147,7 @@ public abstract class ConcurrentBuffer<T> {
 
     protected void doBuffer() {
         if (isBuffering || hasErrored())
-                return;
+            return;
         isBuffering = true;
         synchronized (buffer) {
             try {
@@ -191,13 +195,13 @@ public abstract class ConcurrentBuffer<T> {
         // Create the new latch before opening the old one on the off chance that a
         // thread loops back around before method finishes
         if (bufferingLatch != null && bufferingLatch.getCount() == 0) return;
-        
+
         CountDownLatch oldLatch = bufferingLatch;
         bufferingLatch = new CountDownLatch(1);
         if (oldLatch != null)
             oldLatch.countDown();
     }
-    
+
     public synchronized T poll() {
         if (waitForBuffer()) {
             // Double-check the buffer before polling.
@@ -237,7 +241,7 @@ public abstract class ConcurrentBuffer<T> {
             interruptBuffer();
         }
 
-        synchronized(buffer) {
+        synchronized (buffer) {
             buffer.clear();
             this.startIndex = index;
             hasReachedEnd = false;

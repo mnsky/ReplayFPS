@@ -1,16 +1,15 @@
 package com.igrium.replayfps.core.networking;
 
+import com.igrium.replayfps.core.util.PlaybackUtils;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.Packet;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.igrium.replayfps.core.util.PlaybackUtils;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.Packet;
 
 public class PacketRedirectors {
 
@@ -45,7 +44,7 @@ public class PacketRedirectors {
     }
 
     private static <T extends Packet<?>> void tryHandle(Packet<?> packet, PacketRedirector<T> redirector,
-            PlayerEntity localPlayer, MinecraftClient client) {
+                                                        PlayerEntity localPlayer, MinecraftClient client) {
         redirector.redirect(redirector.getPacketClass().cast(packet), localPlayer, client);
     }
 
@@ -53,5 +52,5 @@ public class PacketRedirectors {
         REGISTRY.put(redirector.getPacketClass(), redirector);
     }
 
-    
+
 }

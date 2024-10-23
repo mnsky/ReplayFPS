@@ -11,6 +11,7 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import org.slf4j.Logger;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +26,12 @@ public class ClientCapHeader {
             super(message);
         }
     }
-    
+
     private static final Identifier INVALID_IDENTIFIER = Identifier.of("replayfps:invalid");
     private Logger logger = LogUtils.getLogger();
 
     private List<ChannelHandler<?>> channels;
-    
+
     private int framerate = 40;
     private int framerateBase = 1;
     private int localPlayerID = -1;
@@ -73,7 +74,7 @@ public class ClientCapHeader {
         }
         this.framerate = framerate;
     }
-    
+
     public void setFramerateBase(int framerateBase) {
         if (framerateBase < 1) {
             throw new IllegalArgumentException("Framerate base must be at least 1.");
@@ -128,7 +129,7 @@ public class ClientCapHeader {
         if (nbt.contains("framerate", NbtElement.INT_TYPE)) {
             setFramerate(nbt.getInt("framerate"));
         }
-        
+
         if (nbt.contains("framerateBase", NbtElement.INT_TYPE)) {
             setFramerateBase(nbt.getInt("framerateBase"));
         }
@@ -136,7 +137,7 @@ public class ClientCapHeader {
         if (!nbt.contains("channels", NbtElement.LIST_TYPE)) {
             throw new HeaderFormatException("No channel declaration found.");
         }
-        
+
         NbtList channels = nbt.getList("channels", NbtElement.COMPOUND_TYPE);
 
         for (NbtElement element : channels) {
@@ -186,9 +187,10 @@ public class ClientCapHeader {
         NbtCompound nbt = NbtIo.readCompound(new DataInputStream(in));
         readNBT(nbt);
     }
-    
+
     /**
      * Calculate the length of one frame.
+     *
      * @return Number of bytes in a frame.
      */
     public int calculateFrameLength() {

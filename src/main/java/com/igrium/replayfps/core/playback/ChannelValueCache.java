@@ -1,10 +1,10 @@
 package com.igrium.replayfps.core.playback;
 
+import com.igrium.replayfps.core.channel.ChannelHandler;
+
 import java.util.Collections;
 import java.util.HashMap;
-
 import java.util.Map;
-import com.igrium.replayfps.core.channel.ChannelHandler;
 
 public class ChannelValueCache {
     private Map<ChannelHandler<?>, Object> map = new HashMap<>();

@@ -1,11 +1,11 @@
 package com.igrium.replayfps.core.channel.type;
 
+import org.joml.Vector4f;
+import org.joml.Vector4fc;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
 
 public class Vector4fChannelType implements ChannelType<Vector4fc> {
 
@@ -41,7 +41,7 @@ public class Vector4fChannelType implements ChannelType<Vector4fc> {
     public Vector4fc defaultValue() {
         return new Vector4f();
     }
-    
+
     @Override
     public String getName() {
         return "Vector4f";
@@ -49,6 +49,6 @@ public class Vector4fChannelType implements ChannelType<Vector4fc> {
 
     @Override
     public float[] getRawValues(Vector4fc value) {
-        return new float[] { value.x(), value.y(), value.z(), value.w() };
+        return new float[]{value.x(), value.y(), value.z(), value.w()};
     }
 }

@@ -1,16 +1,16 @@
 package com.igrium.replayfps.game.event;
 
+import com.igrium.replayfps.core.screen.ScreenState;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 
 public class ClientScreenEvents {
-
     public static final Event<ScreenChangedEvent> SCREEN_CHANGED = EventFactory.createArrayBacked(
-            ScreenChangedEvent.class, listeners -> (client, oldScreen, newScreen) -> {
+            ScreenChangedEvent.class, listeners -> (client, newScreen) -> {
                 for (var l : listeners) {
-                    l.onScreenChanged(client, oldScreen, newScreen);
+                    l.onScreenChanged(client, newScreen);
                 }
             });
 
@@ -22,10 +22,10 @@ public class ClientScreenEvents {
             });
 
     public static interface ScreenChangedEvent {
-        void onScreenChanged(MinecraftClient client, Screen oldScreen, Screen newScreen);
+        void onScreenChanged(MinecraftClient client, Screen newScreen);
     }
 
     public static interface ScreenUpdatedEvent {
-        void onScreenUpdated(MinecraftClient client, Screen screen, Object oldVal, Object newVal);
+        void onScreenUpdated(MinecraftClient client, Screen screen, ScreenState oldState, ScreenState newState);
     }
 }

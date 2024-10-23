@@ -1,14 +1,5 @@
 package com.igrium.replayfps.core.recording;
 
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Optional;
-
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.playback.UnserializedFrame;
 import com.igrium.replayfps.core.util.AnimationUtils;
@@ -16,6 +7,14 @@ import com.igrium.replayfps.core.util.NoHeaderException;
 import com.igrium.replayfps.core.util.TimecodeProvider;
 import com.mojang.logging.LogUtils;
 import com.replaymod.recording.packet.PacketListener;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+
+import java.io.BufferedOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Optional;
 
 /**
  * Captures and saves frames to a file.
@@ -62,6 +61,7 @@ public class ClientCapRecorder implements Closeable {
 
     /**
      * Write the file header.
+     *
      * @param header Header to write.
      * @throws IllegalStateException If the header has already been written.
      */
@@ -79,13 +79,14 @@ public class ClientCapRecorder implements Closeable {
             this.error = Optional.of(e);
             return;
         }
-        
+
     }
 
     /* FRAME CAPTURE */
 
     /**
      * Capture a frame.
+     *
      * @param context Capture context.
      * @return The frame.
      * @throws Exception If the frame capture fails.
@@ -104,7 +105,7 @@ public class ClientCapRecorder implements Closeable {
     }
 
     private int framesSinceLastSave;
-    
+
     protected UnserializedFrame writeFrame(ClientCaptureContext context) throws Exception {
         assertHeaderWritten();
 
@@ -119,10 +120,11 @@ public class ClientCapRecorder implements Closeable {
 
         return frame;
     }
-    
+
     /* RECORDING */
 
     private boolean isRecording;
+
     public final boolean isRecording() {
         return isRecording;
     }
@@ -133,6 +135,7 @@ public class ClientCapRecorder implements Closeable {
     }
 
     private Optional<Exception> error = Optional.empty();
+
     public Optional<Exception> getError() {
         return error;
     }
@@ -143,6 +146,7 @@ public class ClientCapRecorder implements Closeable {
 
     /**
      * Called every frame wile capturing.
+     *
      * @param context The render context.
      */
     public void tick(ClientCaptureContext context) {
@@ -161,7 +165,7 @@ public class ClientCapRecorder implements Closeable {
         // }
         // long timestamp = timeRecording - timePassedWhilePaused;
         // lastTimestamp = timestamp;
-        
+
         // We can't use Util.getMeasuringTimeMillis because packetListener.getStartTime returns in terms of global unix time.
         if (((TimecodeProvider) packetListener).getServerWasPaused()) {
             return;
@@ -173,7 +177,7 @@ public class ClientCapRecorder implements Closeable {
         int currentFrame = AnimationUtils.countFrames((int) timestamp, header.getFramerate(), header.getFramerateBase());
         // It doesn't matter if this is negative because we're only using it for a for loop.
         int framesToCapture = currentFrame - writer.getWrittenFrames();
-        
+
         if (framesToCapture > 100) {
             LOGGER.warn("%d frames have been captured on this tick. This might be a mistake.".formatted(framesToCapture));
         }
