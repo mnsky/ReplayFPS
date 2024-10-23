@@ -3,7 +3,10 @@
     "package": "com.igrium.replayfps.game.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
+      "AbstractSignEditScreenAccessor",
+      "AbstractSignEditScreenMixin",
       "ClientPlayerEntityMixin",
+      "DeathScreenAccessor",
       "LivingEntityAccessor",
       "MinecraftClientMixin",
       "PlayerInventoryMixin"

@@ -1,12 +1,15 @@
 package com.igrium.replayfps.core.playback;
 
 import com.igrium.replayfps.ReplayFPS;
+import com.igrium.replayfps.core.events.CustomScreenRenderCallback;
 import com.igrium.replayfps.core.networking.FakePacketManager;
 import com.igrium.replayfps.core.networking.PacketRedirectors;
 import com.igrium.replayfps.core.networking.event.CustomPacketReceivedEvent;
 import com.igrium.replayfps.core.networking.event.PacketReceivedEvent;
 import com.igrium.replayfps.core.recording.ClientRecordingModule;
+import com.igrium.replayfps.core.screen.PlaybackScreenManager;
 import com.igrium.replayfps.core.util.GlobalReplayContext;
+import com.igrium.replayfps.core.util.PlaybackUtils;
 import com.mojang.logging.LogUtils;
 import com.replaymod.core.Module;
 import com.replaymod.core.events.PreRenderCallback;
@@ -17,8 +20,10 @@ import com.replaymod.replay.events.ReplayOpenedCallback;
 import com.replaymod.replaystudio.replay.ReplayFile;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -26,6 +31,7 @@ import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.world.GameMode;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +44,7 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     private ReplayHandler currentReplay;
     private ClientCapPlayer currentPlayer;
     private FakePacketManager fakePacketManager;
+    private PlaybackScreenManager playbackScreenManager;
 
     private final MinecraftClient client = MinecraftClient.getInstance();
 
@@ -61,7 +68,11 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     public FakePacketManager getFakePacketManager() {
         return fakePacketManager;
     }
-    
+
+    public PlaybackScreenManager getPlaybackScreenManager() {
+        return playbackScreenManager;
+    }
+
     private GameMode hudGamemode = GameMode.SURVIVAL;
 
     public void setHudGamemode(GameMode localPlayerGamemode) {
@@ -72,16 +83,21 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         return hudGamemode;
     }
 
-    { on(ReplayOpenedCallback.EVENT, this::onReplayOpened); }
+    {
+        on(ReplayOpenedCallback.EVENT, this::onReplayOpened);
+    }
+
     private void onReplayOpened(ReplayHandler handler) {
         currentReplay = handler;
         hudGamemode = GameMode.SURVIVAL;
         ReplayFile file = handler.getReplayFile();
-        if (!ReplayFPS.getConfig().shouldPlayClientCap()) return;
+        if (!ReplayFPS.getConfig().shouldPlayClientCap())
+            return;
 
         try {
             var opt = file.get(ClientRecordingModule.ENTRY);
-            if (!opt.isPresent()) return;
+            if (!opt.isPresent())
+                return;
 
             InputStream stream = new BufferedInputStream(opt.get());
             currentPlayer = new ClientCapPlayer(new ClientCapReader(opt.get()));
@@ -90,12 +106,15 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         } catch (IOException e) {
             LogUtils.getLogger().error("Error loading client capture.", e);
         }
-
         fakePacketManager = new FakePacketManager(client, this, currentPlayer);
         fakePacketManager.initReceivers();
+        playbackScreenManager = new PlaybackScreenManager(client);
     }
 
-    { on(ReplayClosingCallback.EVENT, this::onReplayClosing); }
+    {
+        on(ReplayClosingCallback.EVENT, this::onReplayClosing);
+    }
+
     private void onReplayClosing(ReplayHandler handler) {
         if (this.currentReplay != handler) {
             LogUtils.getLogger().warn(
@@ -112,22 +131,30 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
             }
             currentPlayer = null;
         }
-
         fakePacketManager = null;
+        playbackScreenManager = null;
     }
 
-    { on(PreRenderCallback.EVENT, this::tickRender); }
-    private void tickRender() {
-        if (currentPlayer == null || client.world == null || client.getCameraEntity() == null) return;
+    {
+        on(PreRenderCallback.EVENT, this::render);
+    }
+
+    private void render() {
+        if (currentPlayer == null || client.world == null || client.getCameraEntity() == null)
+            return;
 
         int timestamp = currentReplay.getReplaySender().currentTimeStamp();
         ClientPlaybackContext context = genContext(timestamp);
 
-        if (!Objects.equals(client.getCameraEntity(), context.localPlayer().orElse(null))) return;
+        if (!Objects.equals(client.getCameraEntity(), context.localPlayer().orElse(null)))
+            return;
         currentPlayer.tickPlayer(genContext(timestamp));
     }
-    
-    { ClientTickEvents.END_WORLD_TICK.register(this::tickClient); }
+
+    {
+        ClientTickEvents.END_WORLD_TICK.register(this::tickClient);
+    }
+
     private void tickClient(ClientWorld world) {
         if (currentPlayer == null) {
             GlobalReplayContext.ENTITY_POS_OVERRIDES.clear();
@@ -136,9 +163,14 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
 
         ClientPlaybackContext context = genContext(currentReplay.getReplaySender().currentTimeStamp());
         currentPlayer.tickClient(context);
+        if (playbackScreenManager != null)
+            playbackScreenManager.tick();
     }
 
-    { CustomPacketReceivedEvent.EVENT.register(this::onCustomPacketReceived); }
+    {
+        CustomPacketReceivedEvent.EVENT.register(this::onCustomPacketReceived);
+    }
+
     private boolean onCustomPacketReceived(CustomPayload payload) {
         if (FakePacketManager.isFakePacket(payload.getId().id())) {
             if (fakePacketManager != null) {
@@ -150,11 +182,17 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         return false;
     }
 
-    { PacketReceivedEvent.EVENT.register(this::onPacketReceived); }
+    {
+        PacketReceivedEvent.EVENT.register(this::onPacketReceived);
+    }
+
     private boolean onPacketReceived(Packet<?> packet, PacketListener l) {
-        if (currentPlayer == null || client.world == null) return false;
-        PlayerEntity localPlayer = (PlayerEntity) client.world.getEntityById(currentPlayer.getReader().getHeader().getLocalPlayerID());
-        if (localPlayer == null) return false;
+        if (currentPlayer == null || client.world == null)
+            return false;
+        PlayerEntity localPlayer = (PlayerEntity) client.world
+                .getEntityById(currentPlayer.getReader().getHeader().getLocalPlayerID());
+        if (localPlayer == null)
+            return false;
 
         if (PacketRedirectors.REDIRECT_QUEUED.contains(packet)) {
             PacketRedirectors.applyRedirect(packet, localPlayer, client);
@@ -173,15 +211,27 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     public Optional<PlayerEntity> getLocalPlayer() {
         if (client.world == null || this.currentPlayer == null)
             return Optional.empty();
-        
+
         ClientCapReader reader = currentPlayer.getReader();
-        if (reader.getHeader() == null) return Optional.empty();
+        if (reader.getHeader() == null)
+            return Optional.empty();
 
         return Optional.ofNullable((PlayerEntity) client.world.getEntityById(reader.getHeader().getLocalPlayerID()));
     }
 
+    {
+        CustomScreenRenderCallback.EVENT.register(this::doRenderCustomScreen);
+    }
+    private void doRenderCustomScreen(GameRenderer gameRenderer, DrawContext drawContext, int mouseX, int mouseY,
+            float tickDelta) {
+        if (playbackScreenManager != null && PlaybackUtils.isViewingPlaybackPlayer()) {
+            playbackScreenManager.render(drawContext, tickDelta);
+        }
+    }
+
     private ClientPlaybackContext genContext(int timestamp) {
-        return new ClientPlaybackContextImpl(client, currentReplay, timestamp, currentPlayer.getReader().getHeader().getLocalPlayerID());
+        return new ClientPlaybackContextImpl(client, currentReplay, timestamp,
+                currentPlayer.getReader().getHeader().getLocalPlayerID());
     }
 
     private static class ClientPlaybackContextImpl implements ClientPlaybackContext {
@@ -237,6 +287,6 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         public java.util.Optional<ClientWorld> world() {
             return java.util.Optional.ofNullable(client.world);
         }
-        
+
     }
 }

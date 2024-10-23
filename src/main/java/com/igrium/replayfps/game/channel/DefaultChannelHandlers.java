@@ -3,14 +3,23 @@ package com.igrium.replayfps.game.channel;
 import com.igrium.replayfps.core.events.ChannelRegistrationCallback;
 import com.igrium.replayfps.game.channel.handler.*;
 import net.minecraft.util.Identifier;
+
 import static com.igrium.replayfps.core.channel.ChannelHandlers.register;
 
 public class DefaultChannelHandlers {
-    public static final PlayerPosChannelHandler PLAYER_POS = register(new PlayerPosChannelHandler(), Identifier.of("replayfps:player_pos"));
-    public static final PlayerRotChannelHandler PLAYER_ROT = register(new PlayerRotChannelHandler(), Identifier.of("replayfps:player_rot"));
-    public static final PlayerVelocityChannelHandler PLAYER_VELOCITY = register(new PlayerVelocityChannelHandler(), Identifier.of("replayfps:player_velocity"));
-    public static final PlayerStrideChannelHandler PLAYER_STRIDE = register(new PlayerStrideChannelHandler(), Identifier.of("replayfps:player_stride"));
-    public static final HorizontalSpeedHandler HORIZONTAL_SPEED = register(new HorizontalSpeedHandler(), Identifier.of("replayfps:horizontal_speed"));
+    public static final PlayerPosChannelHandler PLAYER_POS = register(new PlayerPosChannelHandler(),
+            Identifier.of("replayfps:player_pos"));
+    public static final PlayerRotChannelHandler PLAYER_ROT = register(new PlayerRotChannelHandler(),
+            Identifier.of("replayfps:player_rot"));
+    public static final PlayerVelocityChannelHandler PLAYER_VELOCITY = register(new PlayerVelocityChannelHandler(),
+            Identifier.of("replayfps:player_velocity"));
+    public static final PlayerStrideChannelHandler PLAYER_STRIDE = register(new PlayerStrideChannelHandler(),
+            Identifier.of("replayfps:player_stride"));
+    public static final HorizontalSpeedHandler HORIZONTAL_SPEED = register(new HorizontalSpeedHandler(),
+            Identifier.of("replayfps:horizontal_speed"));
+
+    public static final MousePosChannelHandler MOUSE_POS = register(new MousePosChannelHandler(),
+            Identifier.of("replayfps:mouse_pos"));
 
     public static void registerDefaults() {
         ChannelRegistrationCallback.EVENT.register(consumer -> {
@@ -19,6 +28,7 @@ public class DefaultChannelHandlers {
             consumer.accept(PLAYER_VELOCITY);
             consumer.accept(PLAYER_STRIDE);
             consumer.accept(HORIZONTAL_SPEED);
+            consumer.accept(MOUSE_POS);
         });
     }
 }

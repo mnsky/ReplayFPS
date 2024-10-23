@@ -1,20 +1,15 @@
 package com.igrium.replayfps.config;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.igrium.replayfps.ReplayFPS;
-
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
+
+import java.io.*;
 
 public final class ReplayFPSConfig {
 
@@ -63,6 +58,16 @@ public final class ReplayFPSConfig {
         this.drawHotbar = drawHotbar;
     }
 
+    private boolean drawScreens = true;
+
+    public boolean shouldDrawScreens() {
+        return drawScreens;
+    }
+
+    public void setDrawScreens(boolean drawScreens) {
+        this.drawScreens = drawScreens;
+    }
+
     public Screen getScreen(Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
@@ -88,7 +93,13 @@ public final class ReplayFPSConfig {
                 .setTooltip(Text.translatable("option.replayfps.drawhotbar.tooltip"))
                 .setSaveConsumer(val -> setDrawHotbar(val))
                 .build());
-        
+
+        hud.addEntry(builder.entryBuilder().startBooleanToggle(Text.translatable("option.replayfps.drawscreens"), drawScreens)
+                .setDefaultValue(true)
+                .setTooltip(Text.translatable("option.replayfps.drawscreens"))
+                .setSaveConsumer(val -> setDrawScreens(val))
+                .build());
+
         builder.setSavingRunnable(this::save);
         
         return builder.build();
