@@ -25,6 +25,8 @@ public class PlaybackScreenManager {
     }
 
     @Nullable
+    private Screen lastRenderedScreen;
+    @Nullable
     private Screen screen;
 
     public void setMouseX(float mouseX) {
@@ -41,12 +43,9 @@ public class PlaybackScreenManager {
 
     public void setScreen(@Nullable Screen newScreen) {
         if (screen != null) {
-            screen.removed();
             prevSizeX = -1;
             prevSizeY = -1;
         }
-        if (newScreen != null)
-            newScreen.onDisplayed();
         screen = newScreen;
     }
 
@@ -58,6 +57,14 @@ public class PlaybackScreenManager {
     private int prevSizeY = -1;
 
     public void render(DrawContext drawContext, float tickDelta) {
+        if (lastRenderedScreen != screen) {
+            if (lastRenderedScreen != null)
+                lastRenderedScreen.removed();
+            if (screen != null)
+                screen.onDisplayed();
+            lastRenderedScreen = screen;
+        }
+
         if (screen == null || !ReplayFPS.getConfig().shouldDrawScreens()) return;
 
         // Don't draw over the game menu.

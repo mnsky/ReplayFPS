@@ -68,12 +68,9 @@ public class SignEditScreenSerializer implements ScreenSerializer {
 
         public boolean hasChanged(Screen screen) {
             var accessor = (AbstractSignEditScreenAccessor) screen;
-            var changed = !Arrays.asList(accessor.getMessages()).equals(messages) ||
+            return !Arrays.asList(accessor.getMessages()).equals(messages) ||
                     front != accessor.isFront() ||
                     currentRow != accessor.getCurrentRow();
-            if (changed)
-                System.out.println("Sign has changed");
-            return changed;
         }
     }
 }
