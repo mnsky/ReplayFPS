@@ -4,7 +4,6 @@ import com.google.common.io.CountingInputStream;
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.recording.ClientCapHeader;
 import com.igrium.replayfps.core.util.NoHeaderException;
-import com.mojang.logging.LogUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -14,11 +13,11 @@ import java.nio.channels.Channels;
  * Reads a ClientCap file.
  */
 public class ClientCapReader implements Closeable {
-
     private int headerLength;
     private int frameLength;
     private final RandomAccessFile file;
-
+    private int playhead;
+    private boolean endOfFile;
     private ClientCapHeader header;
 
     /**
@@ -34,34 +33,22 @@ public class ClientCapReader implements Closeable {
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
             stream.transferTo(out);
         }
-        ;
-
         tempFile.deleteOnExit();
         this.file = new RandomAccessFile(tempFile, "r");
-    }
-
-    /**
-     * Create a ClientCap reader.
-     *
-     * @param file RandomAccessFile to use. Will be closed upon reader close.
-     */
-    public ClientCapReader(RandomAccessFile file) {
-        this.file = file;
-    }
-
-    /**
-     * Create a ClientCap reader.
-     *
-     * @param file File to read.
-     * @throws FileNotFoundException If the file does not exist.
-     */
-    public ClientCapReader(File file) throws FileNotFoundException {
-        this.file = new RandomAccessFile(file, "r");
     }
 
     @Nullable
     public final ClientCapHeader getHeader() {
         return header;
+    }
+
+    /**
+     * Get the position of the playhead.
+     *
+     * @return Index of the frame that will be read on next call to {@link #readFrame()}.
+     */
+    public int getPlayhead() {
+        return playhead;
     }
 
     /**
@@ -80,26 +67,6 @@ public class ClientCapReader implements Closeable {
         header.readHeader(counter);
         frameLength = header.calculateFrameLength();
         headerLength = (int) counter.getCount();
-    }
-
-    private int playhead;
-
-    /**
-     * Get the position of the playhead.
-     *
-     * @return Index of the frame that will be read on next call to {@link #readFrame()}.
-     */
-    public int getPlayhead() {
-        return playhead;
-    }
-
-    private boolean endOfFile;
-
-    /**
-     * If this reader has reached the end of the file.
-     */
-    public boolean isEndOfFile() {
-        return endOfFile;
     }
 
     /**
@@ -142,36 +109,6 @@ public class ClientCapReader implements Closeable {
     public long getFrameOffset(int frame) throws NoHeaderException {
         assertHeaderRead();
         return ((long) frame) * frameLength + headerLength;
-    }
-
-    /**
-     * Count the number of frames within the file.
-     *
-     * @return Number of frames. <code>-1</code> if there's an error reading the
-     * file.
-     * @throws NoHeaderException If the header has not been read (required for
-     *                           frame length.)
-     */
-    public int countFrames() throws NoHeaderException {
-        try {
-            return countFramesOrThrow();
-        } catch (IOException e) {
-            LogUtils.getLogger().error("Error getting length of file.", e);
-            return -1;
-        }
-    }
-
-    /**
-     * Count the number of frames within the file.
-     *
-     * @return Number of frames.
-     * @throws NoHeaderException If the header has not been read (required for frame
-     *                           length.)
-     * @throws IOException       If an IO exception occurs reading the file.
-     */
-    public synchronized int countFramesOrThrow() throws NoHeaderException, IOException {
-        assertHeaderRead();
-        return (int) ((file.length() - headerLength) / frameLength);
     }
 
     /**

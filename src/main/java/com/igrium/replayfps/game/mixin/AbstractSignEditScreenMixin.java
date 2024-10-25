@@ -10,8 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractSignEditScreen.class)
 public abstract class AbstractSignEditScreenMixin extends Screen {
-
-
     protected AbstractSignEditScreenMixin(Text title) {
         super(title);
     }

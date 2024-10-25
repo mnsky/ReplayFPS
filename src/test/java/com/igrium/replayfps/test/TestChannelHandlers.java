@@ -1,26 +1,20 @@
 package com.igrium.replayfps.test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.stream.Stream;
-
+import com.google.common.io.CountingInputStream;
+import com.igrium.replayfps.core.channel.ChannelHandler;
+import com.igrium.replayfps.core.channel.ChannelHandlers;
+import com.igrium.replayfps.core.channel.type.ChannelType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.google.common.io.CountingInputStream;
-import com.igrium.replayfps.core.channel.ChannelHandlers;
-import com.igrium.replayfps.core.channel.type.ChannelType;
+import java.io.*;
+import java.util.stream.Stream;
 
 public class TestChannelHandlers {
-
     private static Stream<? extends ChannelType<?>> provideChannelTypes() {
         return ChannelHandlers.REGISTRY.values().stream()
-                .map(handler -> handler.getChannelType())
+                .map(ChannelHandler::getChannelType)
                 .distinct();
     }
 
@@ -29,7 +23,7 @@ public class TestChannelHandlers {
     public <T> void testChannelWrite(ChannelType<T> channel) throws IOException {
         int size = channel.getSize();
         DataOutputStream dataOut = new DataOutputStream(OutputStream.nullOutputStream());
-        
+
         channel.write(dataOut, channel.defaultValue());
         Assertions.assertEquals(size, dataOut.size(), "Channel's declared size and written size should match.");
     }

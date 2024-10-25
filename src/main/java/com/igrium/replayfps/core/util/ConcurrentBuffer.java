@@ -1,6 +1,7 @@
 package com.igrium.replayfps.core.util;
 
 import com.mojang.logging.LogUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.Queue;
@@ -28,32 +29,11 @@ public abstract class ConcurrentBuffer<T> {
         buffer();
     }
 
-    /**
-     * The executor being used to load the values.
-     */
-    protected Executor getExecutor() {
-        return executor;
-    }
-
     private volatile int bufferSize = 1024;
-    private volatile int bufferThreshold = 512;
-
-    public int getBufferSize() {
-        return bufferSize;
-    }
 
     public void setBufferSize(int bufferSize) {
         this.bufferSize = bufferSize;
     }
-
-    public int getBufferThreshold() {
-        return bufferThreshold;
-    }
-
-    public void setBufferThreshold(int bufferThreshold) {
-        this.bufferThreshold = bufferThreshold;
-    }
-
 
     private final Queue<T> buffer = new ConcurrentLinkedDeque<>();
     /*
@@ -76,13 +56,13 @@ public abstract class ConcurrentBuffer<T> {
         try {
             return load(index);
         } catch (Exception e) {
-            // LogUtils.getLogger().error("Error loading buffer item " + index + ". Buffer will shutdown.", e);
-            this.error = Optional.of(e);
+            this.error = e;
             return null;
         }
     }
 
-    private volatile Optional<Exception> error = Optional.empty();
+    @Nullable
+    private volatile Exception error;
 
     /**
      * If this buffer crashed due to an error, get it here.
@@ -90,24 +70,20 @@ public abstract class ConcurrentBuffer<T> {
      * @return The error.
      */
     public Optional<Exception> getError() {
-        return error;
+        return Optional.ofNullable(error);
     }
 
     /**
      * If this buffer has crashed due to an error.
      */
     public boolean hasErrored() {
-        return error.isPresent();
+        return error != null;
     }
 
 
     private volatile CountDownLatch bufferingLatch = new CountDownLatch(1);
 
     private boolean hasReachedEnd;
-
-    public boolean hasReachedEnd() {
-        return hasReachedEnd;
-    }
 
     private boolean shouldBlock() {
         return buffer.isEmpty() && bufferingLatch != null && !hasReachedEnd && !hasErrored();
@@ -151,7 +127,6 @@ public abstract class ConcurrentBuffer<T> {
         isBuffering = true;
         synchronized (buffer) {
             try {
-
                 // LogUtils.getLogger().info("Buffering");
 
                 int index = startIndex + buffer.size();
@@ -174,21 +149,16 @@ public abstract class ConcurrentBuffer<T> {
                 }
                 interruptBuffer = false;
             } catch (Exception e) {
-                e.printStackTrace();
-                error = Optional.of(e);
+                LogUtils.getLogger().error("Error buffering\n", e);
+                error = e;
             }
             openLatch();
             isBuffering = false;
         }
-
     }
 
     public void interruptBuffer() {
         if (isBuffering) interruptBuffer = true;
-    }
-
-    public final boolean isBuffering() {
-        return isBuffering;
     }
 
     protected void openLatch() {
@@ -211,13 +181,8 @@ public abstract class ConcurrentBuffer<T> {
     }
 
     public synchronized T pollImmediately() {
-        startIndex += 1;
-        T val = buffer.poll();
-
-        // if (buffer.size() < bufferThreshold) {
-        //     buffer();
-        // }
-        return val;
+        startIndex++;
+        return buffer.poll();
     }
 
     public synchronized T peek() {
@@ -255,19 +220,5 @@ public abstract class ConcurrentBuffer<T> {
      */
     public int getIndex() {
         return startIndex;
-    }
-
-    /**
-     * Clear the buffer.
-     */
-    public void clear() {
-        // We can't clear while buffering.
-        if (isBuffering) {
-            interruptBuffer();
-        }
-
-        synchronized (buffer) {
-            buffer.clear();
-        }
     }
 }

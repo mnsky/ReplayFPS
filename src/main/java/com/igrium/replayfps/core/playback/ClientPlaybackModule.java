@@ -22,10 +22,8 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.CustomPayload;
@@ -65,10 +63,6 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         return currentPlayer;
     }
 
-    public FakePacketManager getFakePacketManager() {
-        return fakePacketManager;
-    }
-
     public PlaybackScreenManager getPlaybackScreenManager() {
         return playbackScreenManager;
     }
@@ -106,7 +100,7 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         } catch (IOException e) {
             LogUtils.getLogger().error("Error loading client capture.", e);
         }
-        fakePacketManager = new FakePacketManager(client, this, currentPlayer);
+        fakePacketManager = new FakePacketManager(client, this);
         fakePacketManager.initReceivers();
         playbackScreenManager = new PlaybackScreenManager(client);
     }
@@ -204,9 +198,9 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     /**
      * If a client-cap is playing, get a reference to the player who recorded the
      * replay.
-     * 
+     *
      * @return The original player. An empty optional if there is no client-cap
-     *         playing or the local player was not found.
+     * playing or the local player was not found.
      */
     public Optional<PlayerEntity> getLocalPlayer() {
         if (client.world == null || this.currentPlayer == null)
@@ -222,8 +216,9 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     {
         CustomScreenRenderCallback.EVENT.register(this::doRenderCustomScreen);
     }
+
     private void doRenderCustomScreen(GameRenderer gameRenderer, DrawContext drawContext, int mouseX, int mouseY,
-            float tickDelta) {
+                                      float tickDelta) {
         if (playbackScreenManager != null && PlaybackUtils.isViewingPlaybackPlayer()) {
             playbackScreenManager.render(drawContext, tickDelta);
         }
@@ -235,14 +230,13 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
     }
 
     private static class ClientPlaybackContextImpl implements ClientPlaybackContext {
-
         final MinecraftClient client;
         final ReplayHandler handler;
         final int timestamp;
         final AbstractClientPlayerEntity localPlayer;
 
         public ClientPlaybackContextImpl(MinecraftClient client, ReplayHandler handler, int timestamp,
-                int localPlayerId) {
+                                         int localPlayerId) {
             this.client = client;
             this.handler = handler;
             this.timestamp = timestamp;
@@ -254,39 +248,13 @@ public class ClientPlaybackModule extends EventRegistrations implements Module {
         }
 
         @Override
-        public MinecraftClient client() {
-            return client;
-        }
-
-        @Override
-        public ReplayHandler replayHandler() {
-            return handler;
-        }
-
-        @Override
-        public java.util.Optional<Entity> cameraEntity() {
-            return java.util.Optional.ofNullable(client.cameraEntity);
-        }
-
-        @Override
         public java.util.Optional<AbstractClientPlayerEntity> localPlayer() {
             return java.util.Optional.ofNullable(localPlayer);
-        }
-
-        @Override
-        public Camera camera() {
-            return client.gameRenderer.getCamera();
         }
 
         @Override
         public int timestamp() {
             return timestamp;
         }
-
-        @Override
-        public java.util.Optional<ClientWorld> world() {
-            return java.util.Optional.ofNullable(client.world);
-        }
-
     }
 }

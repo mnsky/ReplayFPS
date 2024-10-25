@@ -5,8 +5,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
 public interface FakePacketRegistrationCallback {
-
-    public static final Event<FakePacketRegistrationCallback> EVENT = EventFactory.createArrayBacked(
+    Event<FakePacketRegistrationCallback> EVENT = EventFactory.createArrayBacked(
             FakePacketRegistrationCallback.class, listeners -> manager -> {
                 for (var l : listeners) {
                     l.register(manager);

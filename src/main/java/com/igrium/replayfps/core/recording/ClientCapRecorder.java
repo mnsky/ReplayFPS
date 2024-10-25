@@ -7,6 +7,7 @@ import com.igrium.replayfps.core.util.NoHeaderException;
 import com.igrium.replayfps.core.util.TimecodeProvider;
 import com.mojang.logging.LogUtils;
 import com.replaymod.recording.packet.PacketListener;
+import net.minecraft.client.MinecraftClient;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -14,13 +15,13 @@ import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Optional;
 
 /**
  * Captures and saves frames to a file.
  */
 public class ClientCapRecorder implements Closeable {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final int AUTOSAVE_INTERVAL = 512;
 
     private final BufferedOutputStream out;
     private final ClientCapWriter writer;
@@ -30,33 +31,15 @@ public class ClientCapRecorder implements Closeable {
     @Nullable
     private ClientCapHeader header;
 
-    private int saveInterval = 512;
-
-    public int getSaveInterval() {
-        return saveInterval;
-    }
-
-    public void setSaveInterval(int saveInterval) {
-        this.saveInterval = saveInterval;
-    }
-
     public ClientCapRecorder(OutputStream out, PacketListener packetListener) {
         this.out = new BufferedOutputStream(out);
         this.writer = new ClientCapWriter(out);
         this.packetListener = packetListener;
     }
 
-    public PacketListener getPacketListener() {
-        return packetListener;
-    }
-
     @Nullable
     public ClientCapHeader getHeader() {
         return header;
-    }
-
-    public ClientCapWriter getWriter() {
-        return writer;
     }
 
     /**
@@ -69,17 +52,14 @@ public class ClientCapRecorder implements Closeable {
         if (this.header != null) {
             throw new IllegalStateException("Header has already been written.");
         }
-
         this.header = header;
         try {
             header.writeHeader(out);
             out.flush();
         } catch (IOException e) {
             LOGGER.error("Error writing clientcap header. Recording will be aborted.", e);
-            this.error = Optional.of(e);
-            return;
+            this.error = e;
         }
-
     }
 
     /* FRAME CAPTURE */
@@ -87,38 +67,30 @@ public class ClientCapRecorder implements Closeable {
     /**
      * Capture a frame.
      *
-     * @param context Capture context.
      * @return The frame.
-     * @throws Exception If the frame capture fails.
      */
-    public UnserializedFrame captureFrame(ClientCaptureContext context) throws Exception {
+    public UnserializedFrame captureFrame(MinecraftClient client) {
         assertHeaderWritten();
         Object[] values = new Object[header.numChannels()];
-
         int i = 0;
         for (ChannelHandler<?> handler : header.getChannels()) {
-            values[i] = handler.capture(context);
+            values[i] = handler.capture(client);
             i++;
         }
-
         return new UnserializedFrame(header, values);
     }
 
     private int framesSinceLastSave;
 
-    protected UnserializedFrame writeFrame(ClientCaptureContext context) throws Exception {
+    protected void writeFrame(MinecraftClient client) throws IOException {
         assertHeaderWritten();
-
-        UnserializedFrame frame = captureFrame(context);
+        var frame = captureFrame(client);
         writer.writeFrame(frame);
-
         framesSinceLastSave++;
-        if (framesSinceLastSave > saveInterval) {
+        if (framesSinceLastSave > AUTOSAVE_INTERVAL) {
             out.flush();
             framesSinceLastSave = 0;
         }
-
-        return frame;
     }
 
     /* RECORDING */
@@ -134,37 +106,19 @@ public class ClientCapRecorder implements Closeable {
         isRecording = true;
     }
 
-    private Optional<Exception> error = Optional.empty();
-
-    public Optional<Exception> getError() {
-        return error;
-    }
+    @Nullable
+    private Exception error;
 
     public boolean hasErrored() {
-        return error.isPresent();
+        return error != null;
     }
 
     /**
      * Called every frame wile capturing.
-     *
-     * @param context The render context.
      */
-    public void tick(ClientCaptureContext context) {
+    public void tick(MinecraftClient client) {
         if (header == null || !isRecording) return;
         if (hasErrored()) return;
-
-        // long now = Util.getMeasuringTimeMs();
-        // // Real time since recording started.
-        // long timeRecording = now - startTime;
-
-        // // This math makes sense to me now, but don't ask me to explain it later.
-        // // UPDATE: It's later and I don't understand it.
-        // if (serverWasPaused) {
-        //     timePassedWhilePaused = timeRecording - lastTimestamp;
-        //     serverWasPaused = false;
-        // }
-        // long timestamp = timeRecording - timePassedWhilePaused;
-        // lastTimestamp = timestamp;
 
         // We can't use Util.getMeasuringTimeMillis because packetListener.getStartTime returns in terms of global unix time.
         if (((TimecodeProvider) packetListener).getServerWasPaused()) {
@@ -179,21 +133,21 @@ public class ClientCapRecorder implements Closeable {
         int framesToCapture = currentFrame - writer.getWrittenFrames();
 
         if (framesToCapture > 100) {
-            LOGGER.warn("%d frames have been captured on this tick. This might be a mistake.".formatted(framesToCapture));
+            LOGGER.warn("{} frames have been captured on this tick. This might be a mistake.", framesToCapture);
         }
 
         if (framesToCapture < 0) {
-            LOGGER.warn(String.format("More frames have been captured than the current timestamp suggests. (%d > %d)",
-                    writer.getWrittenFrames(), currentFrame));
+            LOGGER.warn("More frames have been captured than the current timestamp suggests. ({} > {})",
+                    writer.getWrittenFrames(), currentFrame);
         }
 
         for (int i = 0; i < framesToCapture; i++) {
             try {
-                writeFrame(context);
+                writeFrame(client);
             } catch (Exception e) {
-                LOGGER.error(String.format(
-                        "Error capturing frame %d. Capture will be aborted.", writer.getWrittenFrames()), e);
-                this.error = Optional.of(e);
+                LOGGER.error("Error capturing frame {}. Capture will be aborted.\n{}",
+                        writer.getWrittenFrames(), e);
+                this.error = e;
                 return;
             }
         }
@@ -209,5 +163,4 @@ public class ClientCapRecorder implements Closeable {
         out.flush();
         out.close();
     }
-
 }

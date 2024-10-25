@@ -1,7 +1,6 @@
 package com.igrium.replayfps.game.networking.fake_packet;
 
 import com.igrium.replayfps.core.networking.FakePacketManager;
-import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.igrium.replayfps.game.ItemSlot;
 import com.igrium.replayfps.game.event.InventoryModifiedEvent;
@@ -19,9 +18,9 @@ public record UpdateInventoryFakePacket(List<ItemSlot> items) implements CustomP
     public static final CustomPayload.Id<UpdateInventoryFakePacket> ID = new CustomPayload.Id<>(Identifier.of("rp_replayfps:update_inventory"));
     public static final PacketCodec<RegistryByteBuf, UpdateInventoryFakePacket> CODEC = PacketCodec.tuple(ItemSlot.CODEC.collect(PacketCodecs.toList()), UpdateInventoryFakePacket::items, UpdateInventoryFakePacket::new);
 
-    public static void apply(UpdateInventoryFakePacket packet, ClientPlaybackModule module,
-                             ClientCapPlayer clientCap, PlayerEntity localPlayer) {
-        packet.items.forEach((item) -> localPlayer.getInventory().setStack(item.slot(), item.stack().orElse(ItemStack.EMPTY)));
+    public void apply(ClientPlaybackModule module, PlayerEntity localPlayer) {
+        items.forEach((item) -> localPlayer.getInventory()
+                .setStack(item.slot(), item.stack().orElse(ItemStack.EMPTY)));
     }
 
     public static void registerListener() {

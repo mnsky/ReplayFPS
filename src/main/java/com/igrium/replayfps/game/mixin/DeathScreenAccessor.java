@@ -7,16 +7,15 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(DeathScreen.class)
 public interface DeathScreenAccessor {
-
     @Accessor("message")
-    public Text getMessage();
+    Text getMessage();
 
     @Accessor("isHardcore")
-    public boolean isHardcore();
+    boolean isHardcore();
 
     @Accessor("scoreText")
-    public Text getScoreText();
+    Text getScoreText();
 
     @Accessor("scoreText")
-    public void setScoreText(Text scoreText);
+    void setScoreText(Text scoreText);
 }

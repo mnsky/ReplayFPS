@@ -21,11 +21,11 @@ public class ClientScreenEvents {
                 }
             });
 
-    public static interface ScreenChangedEvent {
+    public interface ScreenChangedEvent {
         void onScreenChanged(MinecraftClient client, Screen newScreen);
     }
 
-    public static interface ScreenUpdatedEvent {
+    public interface ScreenUpdatedEvent {
         void onScreenUpdated(MinecraftClient client, Screen screen, ScreenState oldState, ScreenState newState);
     }
 }

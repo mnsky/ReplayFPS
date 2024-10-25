@@ -6,7 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
 
 public interface CustomScreenRenderCallback {
-    public static final Event<CustomScreenRenderCallback> EVENT = EventFactory.createArrayBacked(
+    Event<CustomScreenRenderCallback> EVENT = EventFactory.createArrayBacked(
             CustomScreenRenderCallback.class,
             listeners -> (gameRenderer, drawContext, mouseX, mouseY, tickDelta) -> {
                 for (var l : listeners) {
@@ -14,6 +14,6 @@ public interface CustomScreenRenderCallback {
                 }
             });
 
-    public void onRenderCustomScreen(GameRenderer gameRenderer, DrawContext drawContext, int mouseX, int mouseY,
-                                     float tickDelta);
+    void onRenderCustomScreen(GameRenderer gameRenderer, DrawContext drawContext, int mouseX, int mouseY,
+                              float tickDelta);
 }

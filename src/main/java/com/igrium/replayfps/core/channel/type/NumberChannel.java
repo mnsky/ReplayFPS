@@ -4,40 +4,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-
 public abstract class NumberChannel<T extends Number> implements ChannelType<T> {
-
-    public int readInt(DataInput in) throws IOException {
-        return read(in).intValue();
-    }
-
-    public long readLong(DataInput in) throws IOException {
-        return read(in).longValue();
-    }
-
-    public short readShort(DataInput in) throws IOException {
-        return read(in).shortValue();
-    }
-
-    public byte readByte(DataInput in) throws IOException {
-        return read(in).byteValue();
-    }
-
-    public float readFloat(DataInput in) throws IOException {
-        return read(in).floatValue();
-    }
-
-    public double readDouble(DataInput in) throws IOException {
-        return read(in).doubleValue();
-    }
-
-    @Override
-    public float[] getRawValues(T value) {
-        return new float[] { value.floatValue() };
-    }
-
     public static class ByteChannel extends NumberChannel<Byte> {
-
         @Override
         public Class<Byte> getType() {
             return Byte.class;
@@ -62,7 +30,7 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
         public Byte defaultValue() {
             return 0;
         }
-        
+
     }
 
     public static class ShortChannel extends NumberChannel<Short> {
@@ -155,7 +123,7 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
 
         @Override
         public Long defaultValue() {
-            return 0l;
+            return 0L;
         }
 
         @Override
@@ -165,7 +133,6 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
     }
 
     public static class FloatChannel extends NumberChannel<Float> {
-
         @Override
         public Class<Float> getType() {
             return Float.class;
@@ -198,7 +165,6 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
     }
 
     public static class DoubleChannel extends NumberChannel<Double> {
-
         @Override
         public Class<Double> getType() {
             return Double.class;
@@ -223,7 +189,7 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
         public Double defaultValue() {
             return 0d;
         }
-        
+
         @Override
         public Double interpolate(Double from, Double to, float delta) {
             return delta * (to - from) + from;
@@ -231,7 +197,6 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
     }
 
     public static class UnsignedShortChannel extends NumberChannel<Integer> {
-
         @Override
         public Class<Integer> getType() {
             return Integer.class;
@@ -256,11 +221,10 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
         public Integer defaultValue() {
             return 0;
         }
-        
-    }
-    
-    public static class UnsignedByteChannel extends NumberChannel<Integer> {
 
+    }
+
+    public static class UnsignedByteChannel extends NumberChannel<Integer> {
         @Override
         public Class<Integer> getType() {
             return Integer.class;
@@ -285,6 +249,5 @@ public abstract class NumberChannel<T extends Number> implements ChannelType<T> 
         public Integer defaultValue() {
             return 0;
         }
-        
     }
 }

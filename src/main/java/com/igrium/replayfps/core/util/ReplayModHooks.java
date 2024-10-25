@@ -9,8 +9,7 @@ public final class ReplayModHooks {
     private ReplayModHooks() {
     }
 
-    ;
-    private static CompletableFuture<ReplayMod> future = new CompletableFuture<>();
+    private static final CompletableFuture<ReplayMod> future = new CompletableFuture<>();
 
     /**
      * Return a <code>CompletableFuture</code> that completes once the Replay Mod

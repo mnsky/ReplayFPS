@@ -9,8 +9,7 @@ import net.minecraft.network.packet.Packet;
  * Called when a packet of any kind is received.
  */
 public interface PacketReceivedEvent {
-
-    public static Event<PacketReceivedEvent> EVENT = EventFactory.createArrayBacked(PacketReceivedEvent.class,
+    Event<PacketReceivedEvent> EVENT = EventFactory.createArrayBacked(PacketReceivedEvent.class,
             listeners -> (packet, listener) -> {
                 for (var l : listeners) {
                     if (l.onPacketReceived(packet, listener)) return true;
@@ -20,11 +19,11 @@ public interface PacketReceivedEvent {
 
     /**
      * Called when a packet of any kind is received.
-     * @param packet The packet.
+     *
+     * @param packet   The packet.
      * @param listener Relevant packet listener.
      * @return If this packet should be "consumed". If <code>true</code> no other
-     *         recievers (including the default one) will recieve the packet.
+     * recievers (including the default one) will recieve the packet.
      */
-    public boolean onPacketReceived(Packet<?> packet, PacketListener listener);
-
+    boolean onPacketReceived(Packet<?> packet, PacketListener listener);
 }

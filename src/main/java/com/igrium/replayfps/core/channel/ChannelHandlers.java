@@ -6,7 +6,7 @@ import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.channel.type.ChannelTypes;
 import com.igrium.replayfps.core.channel.type.PlaceholderChannel;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
-import com.igrium.replayfps.core.recording.ClientCaptureContext;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 
 public class ChannelHandlers {
@@ -27,7 +27,7 @@ public class ChannelHandlers {
         }
 
         @Override
-        public Object capture(ClientCaptureContext context) {
+        public Object capture(MinecraftClient client) {
             return null;
         }
 
@@ -38,9 +38,10 @@ public class ChannelHandlers {
 
     /**
      * Register a channel handler.
-     * @param <T> Channel handler type.
+     *
+     * @param <T>     Channel handler type.
      * @param handler The channel handler.
-     * @param id ID to register with.
+     * @param id      ID to register with.
      * @return <code>handler</code>
      */
     public static <T extends ChannelHandler<?>> T register(T handler, Identifier id) {
@@ -52,10 +53,10 @@ public class ChannelHandlers {
         @Override
         public ChannelType<Short> getChannelType() {
             return ChannelTypes.SHORT;
-        } 
+        }
 
         @Override
-        public Short capture(ClientCaptureContext context) {
+        public Short capture(MinecraftClient client) {
             return 0xFBF;
         }
 

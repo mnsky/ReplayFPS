@@ -8,10 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Until I get screen handlers working properly, this helps with syncing the player hotbar.
@@ -22,7 +19,8 @@ public class BullshitPlayerInventoryManager {
         ClientJoinedWorldEvent.EVENT.register((client, world) -> reset());
     }
 
-    private static ItemStack[] prevInventory = Collections.nCopies(36, ItemStack.EMPTY).toArray(new ItemStack[36]);
+    private final static ItemStack[] prevInventory =
+            Collections.nCopies(36, ItemStack.EMPTY).toArray(new ItemStack[36]);
 
     private static void onEndTick(MinecraftClient client) {
         PlayerEntity player = client.player;
@@ -40,8 +38,6 @@ public class BullshitPlayerInventoryManager {
     }
 
     private static void reset() {
-        for (int i = 0; i < prevInventory.length; i++) {
-            prevInventory[i] = ItemStack.EMPTY;
-        }
+        Arrays.fill(prevInventory, ItemStack.EMPTY);
     }
 }

@@ -1,20 +1,16 @@
 package com.igrium.replayfps.test;
 
-import java.util.concurrent.Executor;
-
-
+import com.igrium.replayfps.core.util.ConcurrentBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.RepeatedTest;
 
-import com.igrium.replayfps.core.util.ConcurrentBuffer;
+import java.util.concurrent.Executor;
 
 public class ConcurrentBufferTest {
-    class DemoBuffer extends ConcurrentBuffer<Integer> {
-
+    static class DemoBuffer extends ConcurrentBuffer<Integer> {
         public DemoBuffer(Executor executor) {
             super(executor);
             setBufferSize(256);
-            setBufferThreshold(1024);
         }
 
         @Override
@@ -30,9 +26,9 @@ public class ConcurrentBufferTest {
 
             return index;
         }
-        
+
     }
-    
+
     @RepeatedTest(8)
     public void testBuffer() throws Exception {
         SimpleSingleThreadExecutor executor = new SimpleSingleThreadExecutor(r -> new Thread(r, "BufferThread"));
@@ -48,8 +44,8 @@ public class ConcurrentBufferTest {
         // if (buffer.hasErrored()) {
         //     throw buffer.getError().get();
         // }
-        Assertions.assertEquals(null, buffer.poll());
-        
+        Assertions.assertNull(buffer.poll());
+
         buffer.seek(3);
         Assertions.assertEquals(3, buffer.peek());
         Assertions.assertEquals(3, buffer.poll());

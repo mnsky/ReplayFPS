@@ -3,12 +3,12 @@ package com.igrium.replayfps.core.channel.type;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * A channel type designed to be used as a placeholder when a channel type was not found.
  */
 public class PlaceholderChannel implements ChannelType<Object> {
-
     private final int size;
     private final byte[] buffer;
 
@@ -35,19 +35,12 @@ public class PlaceholderChannel implements ChannelType<Object> {
 
     @Override
     public void write(DataOutput out, Object val) throws IOException {
-        for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = 0;
-        }
+        Arrays.fill(buffer, (byte) 0);
         out.write(buffer);
     }
 
     @Override
     public Object defaultValue() {
         return null;
-    }
-    
-    @Override
-    public String getName() {
-        return "[unknown]";
     }
 }

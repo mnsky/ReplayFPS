@@ -21,11 +21,11 @@ public class ClientPlayerEvents {
                 }
             });
 
-    public static interface SetGamemodeEvent {
+    public interface SetGamemodeEvent {
         void onSetGamemode(ClientPlayerEntity player, GameMode oldGamemode, GameMode newGamemode);
     }
 
-    public static interface SelectSlotEvent {
-        public void onSelectSlot(PlayerInventory inventory, int slot);
+    public interface SelectSlotEvent {
+        void onSelectSlot(PlayerInventory inventory, int slot);
     }
 }

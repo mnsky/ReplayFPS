@@ -7,19 +7,18 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(AbstractSignEditScreen.class)
 public interface AbstractSignEditScreenAccessor {
-
     @Accessor("blockEntity")
-    public SignBlockEntity getBlockEntity();
+    SignBlockEntity getBlockEntity();
 
     @Accessor("messages")
-    public String[] getMessages();
+    String[] getMessages();
 
     @Accessor("front")
-    public boolean isFront();
+    boolean isFront();
 
     @Accessor("currentRow")
-    public int getCurrentRow();
+    int getCurrentRow();
 
     @Accessor("currentRow")
-    public void setCurrentRow(int currentRow);
+    void setCurrentRow(int currentRow);
 }

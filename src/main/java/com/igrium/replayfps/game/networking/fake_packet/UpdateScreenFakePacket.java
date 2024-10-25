@@ -1,7 +1,6 @@
 package com.igrium.replayfps.game.networking.fake_packet;
 
 import com.igrium.replayfps.core.networking.FakePacketManager;
-import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.igrium.replayfps.core.screen.PlaybackScreenManager;
 import com.igrium.replayfps.core.screen.ScreenSerializers;
@@ -22,7 +21,7 @@ public record UpdateScreenFakePacket(Identifier screenId, ScreenState state)
     public static final PacketCodec<RegistryByteBuf, UpdateScreenFakePacket> CODEC =
             PacketCodec.of(UpdateScreenFakePacket::write, UpdateScreenFakePacket::read);
 
-    public void apply(ClientPlaybackModule module, ClientCapPlayer clientCap, PlayerEntity localPlayer) {
+    public void apply(ClientPlaybackModule module, PlayerEntity localPlayer) {
         try {
             PlaybackScreenManager screenManager = module.getPlaybackScreenManager();
             if (screenManager == null)

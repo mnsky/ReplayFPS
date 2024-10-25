@@ -1,7 +1,6 @@
 package com.igrium.replayfps.game.networking.fake_packet;
 
 import com.igrium.replayfps.core.networking.FakePacketManager;
-import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.igrium.replayfps.core.screen.PlaybackScreenManager;
 import com.igrium.replayfps.core.screen.ScreenSerializer;
@@ -23,7 +22,7 @@ public record OpenScreenFakePacket(Identifier screenId, ScreenState state)
 
     private static final OpenScreenFakePacket EMPTY = new OpenScreenFakePacket(null, null);
 
-    public void apply(ClientPlaybackModule module, ClientCapPlayer clientCap, PlayerEntity localPlayer) {
+    public void apply(ClientPlaybackModule module, PlayerEntity localPlayer) {
         PlaybackScreenManager screenManager = ClientPlaybackModule.getInstance().getPlaybackScreenManager();
         if (screenManager == null)
             return;
@@ -58,7 +57,7 @@ public record OpenScreenFakePacket(Identifier screenId, ScreenState state)
         ScreenSerializer serializer = ScreenSerializers.get(id);
 
         if (serializer == null) {
-            LogUtils.getLogger().error("Unknown screen serializer: " + id);
+            LogUtils.getLogger().error("Unknown screen serializer {}", id);
             return EMPTY;
         }
 

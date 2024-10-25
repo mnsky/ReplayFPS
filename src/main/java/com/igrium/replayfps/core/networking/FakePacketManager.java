@@ -1,7 +1,6 @@
 package com.igrium.replayfps.core.networking;
 
 import com.igrium.replayfps.core.networking.event.FakePacketRegistrationCallback;
-import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.igrium.replayfps.core.util.PlaybackUtils;
 import com.mojang.logging.LogUtils;
@@ -14,28 +13,22 @@ import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class FakePacketManager {
     public static final String NAMESPACE = "rp_replayfps";
 
-    public static enum SpectatorRule {APPLY, SKIP}
-
     private final MinecraftClient client;
     private final ClientPlaybackModule module;
-    private final ClientCapPlayer clientCap;
 
     private final Map<Identifier, FakePacketHandler<CustomPayload>> handlers = Collections.synchronizedMap(new HashMap<>());
-    private final Map<Identifier, SpectatorRule> spectatorRules = Collections.synchronizedMap(new HashMap<>());
 
-    public Map<Identifier, SpectatorRule> getSpectatorRules() {
-        return spectatorRules;
-    }
-
-    public FakePacketManager(MinecraftClient client, ClientPlaybackModule module, ClientCapPlayer clientCap) {
+    public FakePacketManager(MinecraftClient client, ClientPlaybackModule module) {
         this.client = client;
         this.module = module;
-        this.clientCap = clientCap;
     }
 
     /**
@@ -73,13 +66,10 @@ public class FakePacketManager {
             if (playerOpt.isEmpty())
                 return;
             PlayerEntity player = playerOpt.get();
-            SpectatorRule rule = spectatorRules.getOrDefault(player, SpectatorRule.APPLY);
-            if (client.getCameraEntity() != player && rule != SpectatorRule.APPLY)
-                return;
             try {
-                handler.handle(payload, module, clientCap, player);
+                handler.handle(payload, module, player);
             } catch (Throwable ex) {
-                LogUtils.getLogger().error("Error handling fake packet: " + id, ex);
+                LogUtils.getLogger().error("Error handling fake packet {}\n{}", id, ex);
             }
         });
         return true;
@@ -87,16 +77,6 @@ public class FakePacketManager {
 
     public <T extends CustomPayload> void registerReceiver(CustomPayload.Id<T> id, FakePacketHandler<T> handler) {
         handlers.put(id.id(), (FakePacketHandler<CustomPayload>) handler);
-    }
-
-    /**
-     * Set the behavior for when a fake packet is received while not spectating the player.
-     *
-     * @param id            ID of the packet to apply to.
-     * @param spectatorRule Spectator rule.
-     */
-    public <T extends CustomPayload> void addSpectatorRule(Identifier id, SpectatorRule spectatorRule) {
-        spectatorRules.put(id, Objects.requireNonNull(spectatorRule));
     }
 
     /**

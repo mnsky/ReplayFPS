@@ -8,7 +8,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class Vector2fChannelType implements ChannelType<Vector2fc> {
-
     @Override
     public Class<Vector2fc> getType() {
         return Vector2fc.class;
@@ -40,15 +39,5 @@ public class Vector2fChannelType implements ChannelType<Vector2fc> {
     @Override
     public Vector2fc interpolate(Vector2fc from, Vector2fc to, float delta) {
         return from.lerp(to, delta, new Vector2f());
-    }
-
-    @Override
-    public String getName() {
-        return "Vector2f";
-    }
-
-    @Override
-    public float[] getRawValues(Vector2fc value) {
-        return new float[]{value.x(), value.y()};
     }
 }

@@ -8,7 +8,7 @@ import net.minecraft.network.packet.CustomPayload;
  * Called when a custom packet of any kind is received on the client.
  */
 public interface CustomPacketReceivedEvent {
-    public static final Event<CustomPacketReceivedEvent> EVENT = EventFactory.createArrayBacked(
+    Event<CustomPacketReceivedEvent> EVENT = EventFactory.createArrayBacked(
             CustomPacketReceivedEvent.class,
             listeners -> payload -> {
 
@@ -22,10 +22,10 @@ public interface CustomPacketReceivedEvent {
 
     /**
      * Called whenever a custom packet of any kind is received on the client.
-     * 
+     *
      * @param payload The packet's payload.
      * @return If this packet should be "consumed". If <code>true</code> no other
-     *         receivers (including the registered one) will receive the packet.
+     * receivers (including the registered one) will receive the packet.
      */
-    public boolean onPacketReceived(CustomPayload payload);
+    boolean onPacketReceived(CustomPayload payload);
 }

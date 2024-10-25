@@ -8,12 +8,12 @@ import net.minecraft.entity.player.PlayerInventory;
 import java.util.List;
 
 public interface InventoryModifiedEvent {
-    public Event<InventoryModifiedEvent> EVENT = EventFactory.createArrayBacked(
+    Event<InventoryModifiedEvent> EVENT = EventFactory.createArrayBacked(
             InventoryModifiedEvent.class, listeners -> (inv, updates) -> {
                 for (var l : listeners) {
                     l.onInventoryModified(inv, updates);
                 }
             });
 
-    public void onInventoryModified(PlayerInventory inventory, List<ItemSlot> updates);
+    void onInventoryModified(PlayerInventory inventory, List<ItemSlot> updates);
 }

@@ -10,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,10 +22,7 @@ public class ClientCapPlayer implements Closeable {
     private UnserializedFrame lastFrameA;
     private UnserializedFrame lastFrameB;
 
-    @Nullable
-    private UnserializedFrame lastFrame;
-
-    private ClientCapBuffer buffer;
+    private final ClientCapBuffer buffer;
 
     /**
      * Create a ClientCap player.
@@ -46,17 +42,13 @@ public class ClientCapPlayer implements Closeable {
         return reader;
     }
 
-    private Optional<Exception> error = Optional.empty();
-
-    public final Optional<Exception> getError() {
-        return error;
-    }
+    private Exception error = null;
 
     public boolean hasErrored() {
-        return error.isPresent();
+        return error != null;
     }
 
-    private ChannelValueCache valueCache = new ChannelValueCache();
+    private final ChannelValueCache valueCache = new ChannelValueCache();
 
     /**
      * Read and apply the cliencap animation on the current frame.
@@ -87,8 +79,8 @@ public class ClientCapPlayer implements Closeable {
                 delta = (timestamp - prevFrameTime) / (float) (nextFrameTime - prevFrameTime);
             }
 
-            UnserializedFrame prevFrame = getFrame(frameNumber, true);
-            UnserializedFrame nextFrame = getFrame(frameNumber + 1, true);
+            UnserializedFrame prevFrame = getFrame(frameNumber);
+            UnserializedFrame nextFrame = getFrame(frameNumber + 1);
 
             // Storing these prevents unneeded polls of the buffer.
             lastFrameAIndex = frameNumber;
@@ -106,15 +98,11 @@ public class ClientCapPlayer implements Closeable {
             } else {
                 GlobalReplayContext.ENTITY_POS_OVERRIDES.clear();
             }
-
         } catch (Exception e) {
-            LogUtils.getLogger().error("An error occured while reading animation frame " + frameNumber, e);
-            error = Optional.of(e);
-            return;
+            LogUtils.getLogger().error("An error occured while reading animation frame {}: {}", frameNumber, e);
+            error = e;
         }
-
     }
-
 
     /**
      * Called every time the client ticks (instead of every frame).
@@ -126,33 +114,32 @@ public class ClientCapPlayer implements Closeable {
             }
         } catch (Exception e) {
             LogUtils.getLogger().error("An error occured while applying a cached channel value.", e);
-            error = Optional.of(e);
+            error = e;
         } finally {
             valueCache.clear();
         }
     }
 
-    // Seperate method needed for generic.
-    private <T> void castAndApplyChannel(ChannelHandler<T> handler, Object value, ClientPlaybackContext context) throws Exception {
+    // Separate method needed for generic.
+    private <T> void castAndApplyChannel(ChannelHandler<T> handler, Object value, ClientPlaybackContext context) {
         handler.apply(handler.getType().cast(value), context);
     }
 
-    private UnserializedFrame getFrame(int index, boolean poll) {
+    private UnserializedFrame getFrame(int index) {
         if (index == lastFrameAIndex && lastFrameA != null)
             return lastFrameA;
         if (index == lastFrameBIndex && lastFrameB != null)
             return lastFrameB;
-
         if (index != buffer.getIndex()) {
             buffer.seek(index);
-            LogUtils.getLogger().info("Seeking frame " + index);
+            LogUtils.getLogger().info("Seeking frame {}", index);
         }
-
-        return poll ? buffer.poll() : buffer.peek();
+        return buffer.poll();
     }
 
-
-    private <T> void interpolateAndApply(ChannelHandler<T> handler, Object value, @Nullable Object value2, float delta, ClientPlaybackContext context) throws Exception, ClassCastException {
+    private <T> void interpolateAndApply(
+            ChannelHandler<T> handler, Object value, @Nullable Object value2,
+            float delta, ClientPlaybackContext context) {
         if (value == null)
             return;
         T casted = handler.getType().cast(value);
@@ -163,13 +150,12 @@ public class ClientCapPlayer implements Closeable {
         if (handler.shouldInterpolate() && value2 != null) {
             T casted2 = handler.getType().cast(value2);
             applyChannelOrCache(handler, handler.getChannelType().interpolate(casted, casted2, delta), context);
-
         } else {
             applyChannelOrCache(handler, casted, context);
         }
     }
 
-    private <T> void applyChannelOrCache(ChannelHandler<T> handler, T value, ClientPlaybackContext context) throws Exception {
+    private <T> void applyChannelOrCache(ChannelHandler<T> handler, T value, ClientPlaybackContext context) {
         if (handler.applyPerTick()) {
             valueCache.put(handler, value);
         } else {
@@ -177,30 +163,25 @@ public class ClientCapPlayer implements Closeable {
         }
     }
 
-    @Override
     /**
      * Close this player and its reader.
+     *
      * @throws IOException If an IO exception occurs closing the reader.
      */
+    @Override
     public void close() throws IOException {
         reader.close();
         buffer.close();
     }
 
     public static class ClientCapBuffer extends ConcurrentBuffer<UnserializedFrame> implements Closeable {
-
-        private ExecutorService executor = Executors.newSingleThreadExecutor();
+        private final ExecutorService executor;
         private final ClientCapReader reader;
 
         public ClientCapBuffer(ExecutorService executor, ClientCapReader reader) {
             super(executor);
             this.executor = executor;
             this.reader = reader;
-        }
-
-        @Override
-        public ExecutorService getExecutor() {
-            return executor;
         }
 
         @Override

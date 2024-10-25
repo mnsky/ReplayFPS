@@ -1,6 +1,5 @@
 package com.igrium.replayfps.game.networking.fake_packet.legacy;
 
-import com.igrium.replayfps.core.playback.ClientCapPlayer;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
 import com.igrium.replayfps.core.util.ItemIdCompatibility;
 import com.replaymod.replay.ReplayHandler;
@@ -24,11 +23,9 @@ public record UpdateHotbarFakePacket(Int2ObjectMap<ItemStack> map) implements Cu
     public static final Id<UpdateHotbarFakePacket> ID = new Id<>(Identifier.of("rp_replayfps:update_hotbar"));
     public static final PacketCodec<RegistryByteBuf, UpdateHotbarFakePacket> CODEC = PacketCodec.of(UpdateHotbarFakePacket::write, UpdateHotbarFakePacket::read);
 
-    public static void apply(UpdateHotbarFakePacket packet, ClientPlaybackModule module,
-                             ClientCapPlayer clientCap, PlayerEntity localPlayer) {
-        packet.map.forEach((slot, stack) -> {
-            localPlayer.getInventory().setStack(slot, stack);
-        });
+    public void apply(ClientPlaybackModule module, PlayerEntity localPlayer) {
+        map.forEach((slot, stack) ->
+                localPlayer.getInventory().setStack(slot, stack));
     }
 
     public static UpdateHotbarFakePacket read(RegistryByteBuf buf) {

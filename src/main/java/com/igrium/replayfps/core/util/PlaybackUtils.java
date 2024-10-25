@@ -13,8 +13,6 @@ public final class PlaybackUtils {
     private PlaybackUtils() {
     }
 
-    ;
-
     /**
      * If there is a client-capture playing, get the ID of the local player it was
      * captured on. Should only be used when you don't have access to a
@@ -38,7 +36,6 @@ public final class PlaybackUtils {
      * @return The player who captured the replay. <code>null</code> if there is no
      * client-capture playing or the player could not be found.
      */
-    @SuppressWarnings("resource")
     public static PlayerEntity getCurrentPlaybackPlayer() {
         World world = MinecraftClient.getInstance().world;
         if (world == null) return null;
@@ -60,7 +57,6 @@ public final class PlaybackUtils {
      * original capture player. <code>false</code> if we're not playing a
      * client-capture or we're not looking through their perspective.
      */
-    @SuppressWarnings("resource")
     public static boolean isViewingPlaybackPlayer() {
         Entity camera = MinecraftClient.getInstance().cameraEntity;
         if (camera == null) return false;

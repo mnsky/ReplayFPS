@@ -5,33 +5,28 @@ import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.channel.type.ChannelTypes;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
 import com.igrium.replayfps.core.playback.ClientPlaybackModule;
-import com.igrium.replayfps.core.recording.ClientCaptureContext;
 import com.igrium.replayfps.core.screen.PlaybackScreenManager;
 import net.minecraft.client.MinecraftClient;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 public class MousePosChannelHandler implements ChannelHandler<Vector2fc> {
-
     @Override
     public ChannelType<Vector2fc> getChannelType() {
         return ChannelTypes.VECTOR2F;
     }
 
     @Override
-    public Vector2fc capture(ClientCaptureContext context) throws Exception {
-        MinecraftClient client = context.client();
-        float x = (float) (client.mouse.getX() * client.getWindow().getScaledWidth() / client.getWindow().getWidth());
-        float y = (float) (client.mouse.getY() * client.getWindow().getScaledHeight() / client.getWindow().getHeight());
-
-        x -= client.getWindow().getScaledWidth() / 2;
-        y -= client.getWindow().getScaledHeight() / 2;
-
+    public Vector2fc capture(MinecraftClient client) {
+        var x = (float) (client.mouse.getX() * client.getWindow().getScaledWidth() / client.getWindow().getWidth());
+        var y = (float) (client.mouse.getY() * client.getWindow().getScaledHeight() / client.getWindow().getHeight());
+        x -= (float) (client.getWindow().getScaledWidth() / 2);
+        y -= (float) (client.getWindow().getScaledHeight() / 2);
         return new Vector2f(x, y);
     }
 
     @Override
-    public void apply(Vector2fc val, ClientPlaybackContext context) throws Exception {
+    public void apply(Vector2fc val, ClientPlaybackContext context) {
         ClientPlaybackModule module = ClientPlaybackModule.getInstance();
         PlaybackScreenManager screenManager = module.getPlaybackScreenManager();
         if (screenManager == null) return;
@@ -44,5 +39,5 @@ public class MousePosChannelHandler implements ChannelHandler<Vector2fc> {
     public boolean shouldInterpolate() {
         return true;
     }
-    
+
 }

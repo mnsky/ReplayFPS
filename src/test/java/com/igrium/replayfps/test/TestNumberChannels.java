@@ -1,13 +1,12 @@
 package com.igrium.replayfps.test;
 
-import java.io.IOException;
-import java.util.Random;
-
+import com.igrium.replayfps.core.channel.type.ChannelTypes;
+import com.igrium.replayfps.core.channel.type.NumberChannel.ByteChannel;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 
-import com.igrium.replayfps.core.channel.type.ChannelTypes;
-import com.igrium.replayfps.core.channel.type.NumberChannel.ByteChannel;
+import java.io.IOException;
+import java.util.Random;
 
 public class TestNumberChannels {
 

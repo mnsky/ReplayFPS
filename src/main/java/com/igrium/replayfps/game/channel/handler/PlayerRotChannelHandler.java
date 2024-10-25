@@ -4,22 +4,21 @@ import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.channel.type.ChannelType;
 import com.igrium.replayfps.core.channel.type.ChannelTypes;
 import com.igrium.replayfps.core.playback.ClientPlaybackContext;
-import com.igrium.replayfps.core.recording.ClientCaptureContext;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.MinecraftClient;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 public class PlayerRotChannelHandler implements ChannelHandler<Vector2fc> {
-
     @Override
     public ChannelType<Vector2fc> getChannelType() {
         return ChannelTypes.VECTOR2F;
     }
 
     @Override
-    public Vector2fc capture(ClientCaptureContext context) {
-        ClientPlayerEntity player = context.localPlayer();
-        return new Vector2f(player.getPitch(), player.getYaw());
+    public Vector2fc capture(MinecraftClient client) {
+        if (client.player == null)
+            throw new RuntimeException("No client player");
+        return new Vector2f(client.player.getPitch(), client.player.getYaw());
     }
 
     @Override

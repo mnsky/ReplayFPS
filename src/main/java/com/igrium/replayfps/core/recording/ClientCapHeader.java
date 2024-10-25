@@ -18,19 +18,15 @@ import java.util.List;
 
 public class ClientCapHeader {
     public static class HeaderFormatException extends IOException {
-        public HeaderFormatException() {
-
-        }
-
         public HeaderFormatException(String message) {
             super(message);
         }
     }
 
     private static final Identifier INVALID_IDENTIFIER = Identifier.of("replayfps:invalid");
-    private Logger logger = LogUtils.getLogger();
+    private final Logger logger = LogUtils.getLogger();
 
-    private List<ChannelHandler<?>> channels;
+    private final List<ChannelHandler<?>> channels;
 
     private int framerate = 40;
     private int framerateBase = 1;
@@ -80,23 +76,6 @@ public class ClientCapHeader {
             throw new IllegalArgumentException("Framerate base must be at least 1.");
         }
         this.framerateBase = framerateBase;
-    }
-
-    public final void setFramerate(int framerate, int framerateBase) {
-        setFramerate(framerateBase);
-        setFramerateBase(framerateBase);
-    }
-
-    public float getFramerateFloat() {
-        return ((float) framerate) / ((float) framerateBase);
-    }
-
-    public float getFrameInterval() {
-        return ((float) framerateBase) / ((float) framerate);
-    }
-
-    public int getFrameIntervalMillis() {
-        return (framerateBase * 1000) / framerate;
     }
 
     public NbtCompound writeNBT(NbtCompound nbt) {
@@ -167,12 +146,13 @@ public class ClientCapHeader {
 
         ChannelHandler<?> handler = ChannelHandlers.REGISTRY.get(id);
         if (handler == null) {
-            logger.warn("Unknown channel type: " + id);
+            logger.warn("Unknown channel type: {}", id);
             handler = new PlaceholderChannelHandler(size);
         }
 
         if (handler.getChannelType().getSize() != size) {
-            logger.error("Improper channel size for handler type '%s'! (%d != %d)".formatted(id, size, handler.getChannelType().getSize()));
+            logger.error("Improper channel size for handler type '{}'! ({} != {})",
+                    id, size, handler.getChannelType().getSize());
             handler = new PlaceholderChannelHandler(size);
         }
 

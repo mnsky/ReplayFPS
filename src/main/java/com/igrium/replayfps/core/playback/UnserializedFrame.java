@@ -2,21 +2,17 @@ package com.igrium.replayfps.core.playback;
 
 import com.igrium.replayfps.core.channel.ChannelHandler;
 import com.igrium.replayfps.core.recording.ClientCapHeader;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 /**
- * Represents the contents of a single frame before its written to disk.
+ * Represents the contents of a single frame before it's written to disk.
  */
 public record UnserializedFrame(ClientCapHeader header, Object[] values) {
-
-    public UnserializedFrame(ClientCapHeader header, Object[] values) {
-        if (values.length != header.numChannels()) {
+    public UnserializedFrame {
+        if (values.length != header.numChannels())
             throw new IllegalArgumentException("Incorrect number of channels.");
-        }
-
-        this.header = header;
-        this.values = values;
     }
 
     public UnserializedFrame(ClientCapHeader header) {
@@ -49,23 +45,22 @@ public record UnserializedFrame(ClientCapHeader header, Object[] values) {
     }
 
     private class ChannelMap extends AbstractMap<ChannelHandler<?>, Object> {
-        private ChannelEntrySet entrySet = new ChannelEntrySet();
+        private final ChannelEntrySet entrySet = new ChannelEntrySet();
 
         @Override
-        public Set<Map.Entry<ChannelHandler<?>, Object>> entrySet() {
+        public @NotNull Set<Map.Entry<ChannelHandler<?>, Object>> entrySet() {
             return entrySet;
         }
     }
 
     private class ChannelEntrySet extends AbstractSet<Map.Entry<ChannelHandler<?>, Object>> {
-
         @Override
         public int size() {
             return values.length;
         }
 
         @Override
-        public Iterator<Map.Entry<ChannelHandler<?>, Object>> iterator() {
+        public @NotNull Iterator<Map.Entry<ChannelHandler<?>, Object>> iterator() {
             return new ChannelIterator();
         }
 
@@ -75,14 +70,12 @@ public record UnserializedFrame(ClientCapHeader header, Object[] values) {
         }
 
         @Override
-        public boolean addAll(Collection<? extends Map.Entry<ChannelHandler<?>, Object>> c) {
+        public boolean addAll(@NotNull Collection<? extends Map.Entry<ChannelHandler<?>, Object>> c) {
             throw new UnsupportedOperationException("Unimplemented method 'addAll'");
         }
-
     }
 
     private class ChannelIterator implements Iterator<Map.Entry<ChannelHandler<?>, Object>> {
-
         int currentIndex;
 
         @Override
@@ -97,6 +90,5 @@ public record UnserializedFrame(ClientCapHeader header, Object[] values) {
             currentIndex++;
             return new AbstractMap.SimpleEntry<>(key, value);
         }
-
     }
 }

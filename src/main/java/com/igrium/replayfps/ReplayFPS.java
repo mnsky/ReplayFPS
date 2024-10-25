@@ -19,11 +19,13 @@ public class ReplayFPS implements ModInitializer {
 
     private static ReplayFPS instance;
 
+    private ClientRecordingModule clientRecordingModule;
+    private ClientPlaybackModule clientPlaybackModule;
+    private ReplayFPSConfig config;
+
     public static ReplayFPS getInstance() {
         return instance;
     }
-
-    private ReplayFPSConfig config;
 
     public ReplayFPSConfig config() {
         return config;
@@ -33,29 +35,17 @@ public class ReplayFPS implements ModInitializer {
         return getInstance().config();
     }
 
-    private ClientRecordingModule clientRecordingModule;
-
-    public ClientRecordingModule getClientRecordingModule() {
-        return clientRecordingModule;
-    }
-
-    private ClientPlaybackModule clientPlaybackModule;
-
-    public ClientPlaybackModule getClientPlaybackModule() {
-        return clientPlaybackModule;
-    }
-
     @Override
     public void onInitialize() {
         instance = this;
         config = ReplayFPSConfig.load();
 
         ReplayModHooks.onReplayModInit(mod -> {
-            clientRecordingModule = new ClientRecordingModule(mod);
+            clientRecordingModule = new ClientRecordingModule();
             clientRecordingModule.initCommon();
             clientRecordingModule.initClient();
             clientRecordingModule.register();
-            
+
             clientPlaybackModule = new ClientPlaybackModule();
             clientPlaybackModule.initCommon();
             clientPlaybackModule.initClient();

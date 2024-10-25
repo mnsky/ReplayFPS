@@ -6,7 +6,6 @@ import com.igrium.replayfps.core.events.ChannelRegistrationCallback;
 import com.igrium.replayfps.core.events.RecordingEvents;
 import com.mojang.logging.LogUtils;
 import com.replaymod.core.Module;
-import com.replaymod.core.ReplayMod;
 import com.replaymod.lib.de.johni0702.minecraft.gui.utils.EventRegistrations;
 import com.replaymod.recording.packet.PacketListener;
 import com.replaymod.replaystudio.replay.ReplayFile;
@@ -15,21 +14,14 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class ClientRecordingModule extends EventRegistrations implements Module {
-
     public static final String ENTRY = "client.ccap";
 
     private static ClientRecordingModule instance;
@@ -38,17 +30,7 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         return instance;
     }
 
-    private final ReplayMod replayMod;
-
-    private Optional<ClientCapRecorder> activeRecording = Optional.empty();
-
-    public ClientRecordingModule(ReplayMod replayMod) {
-        this.replayMod = replayMod;
-    }
-
-    public ReplayMod getReplayMod() {
-        return replayMod;
-    }
+    private ClientCapRecorder activeRecording;
 
     @Override
     public void initCommon() {
@@ -80,11 +62,9 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         ClientCapHeader header = new ClientCapHeader(channels);
         try {
             OutputStream out = file.write(ENTRY);
-            ClientCapRecorder recorder = new ClientCapRecorder(out, listener);
-            activeRecording = Optional.of(recorder);
+            activeRecording = new ClientCapRecorder(out, listener);
             queuedHeader = header;
-            LogUtils.getLogger().info("Header has %d channels".formatted(channels.size()));
-
+            LogUtils.getLogger().info("Header has {} channels", channels.size());
         } catch (Exception e) {
             LogUtils.getLogger().error("Unable to initialize client-cap recording.", e);
         }
@@ -98,26 +78,14 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         if (isRecording()) stopRecording();
     }
 
-    // { on(PreRenderCallback.EVENT, this::checkForGamePaused); }
-    // protected void checkForGamePaused() {
-    //     MinecraftClient client = replayMod.getMinecraft();
-    //     if (activeRecording.isPresent() && client.isIntegratedServerRunning()) {
-    //         IntegratedServer server = client.getServer();
-    //         if (((IntegratedServerAccessor) server).isGamePaused()) {
-    //             activeRecording.get().setServerWasPaused();
-    //         }
-    //     }
-    // }
-
     protected void onFrame(WorldRenderContext context) {
-        if (activeRecording.isPresent()) {
-            ClientCapRecorder recording = activeRecording.get();
-            ClientCaptureContext clientContext = new ClientCaptureContextImpl(context, MinecraftClient.getInstance());
-
-            if (recording.getHeader() == null) {
-                initRecording(recording, clientContext.localPlayer().getId());
+        if (isRecording()) {
+            var client = MinecraftClient.getInstance();
+            if (activeRecording.getHeader() == null) {
+                assert client.player != null;
+                initRecording(activeRecording, client.player.getId());
             }
-            recording.tick(clientContext);
+            activeRecording.tick(client);
         }
     }
 
@@ -127,12 +95,8 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         recording.startRecording();
     }
 
-    public Optional<ClientCapRecorder> getActiveRecording() {
-        return activeRecording;
-    }
-
     public boolean isRecording() {
-        return activeRecording.isPresent();
+        return activeRecording != null;
     }
 
     /**
@@ -144,61 +108,11 @@ public class ClientRecordingModule extends EventRegistrations implements Module 
         if (!isRecording()) {
             throw new IllegalStateException("We are not recording.");
         }
-
         try {
-            activeRecording.get().close();
+            activeRecording.close();
         } catch (IOException e) {
             LogUtils.getLogger().error("Error closing recording stream.", e);
         }
-        activeRecording = Optional.empty();
-    }
-
-    private static class ClientCaptureContextImpl implements ClientCaptureContext {
-
-        private final WorldRenderContext renderContext;
-        private final MinecraftClient client;
-
-        public ClientCaptureContextImpl(WorldRenderContext renderContext, MinecraftClient client) {
-            this.renderContext = renderContext;
-            this.client = client;
-        }
-
-        @Override
-        public MinecraftClient client() {
-            return client;
-        }
-
-        @Override
-        public Entity cameraEntity() {
-            return client.cameraEntity;
-        }
-
-        @Override
-        public Camera camera() {
-            return renderContext.camera();
-        }
-
-        @Override
-        public ClientPlayerEntity localPlayer() {
-            return client.player;
-        }
-
-        @Override
-        public GameRenderer gameRenderer() {
-            return renderContext.gameRenderer();
-        }
-
-        @Override
-        public ClientWorld world() {
-            return renderContext.world();
-        }
-
-        @Override
-        public WorldRenderContext renderContext() {
-            return renderContext;
-        }
-
+        activeRecording = null;
     }
 }
-
-

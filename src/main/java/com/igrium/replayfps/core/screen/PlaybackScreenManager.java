@@ -11,32 +11,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-
 public class PlaybackScreenManager {
+    public static final Identifier MOUSE_TEXTURE = Identifier.of("replayfps", "textures/cursor/cursor_mc.png");
+
     private final MinecraftClient client;
 
     // Mouse position relative to center of the screen.
     private float mouseX;
     private float mouseY;
 
-    public static final Identifier MOUSE_TEXTURE = Identifier.of("replayfps", "textures/cursor/cursor_mc.png");
-
     public PlaybackScreenManager(MinecraftClient client) {
         this.client = client;
     }
 
-    private Optional<Screen> screen = Optional.empty();
-
-    public final float getMouseX() {
-        return mouseX;
-    }
+    @Nullable
+    private Screen screen;
 
     public void setMouseX(float mouseX) {
         this.mouseX = mouseX;
-    }
-
-    public final float getMouseY() {
-        return mouseY;
     }
 
     public void setMouseY(float mouseY) {
@@ -44,32 +36,29 @@ public class PlaybackScreenManager {
     }
 
     public final Optional<Screen> getScreen() {
-        return screen;
+        return Optional.ofNullable(screen);
     }
 
-    public void setScreen(Optional<Screen> screen) {
-        this.screen.ifPresent(s -> {
-            s.removed();
+    public void setScreen(@Nullable Screen newScreen) {
+        if (screen != null) {
+            screen.removed();
             prevSizeX = -1;
             prevSizeY = -1;
-        });
-        this.screen = screen;
-        screen.ifPresent(Screen::onDisplayed);
-    }
-
-    public final void setScreen(@Nullable Screen screen) {
-        setScreen(Optional.ofNullable(screen));
+        }
+        if (newScreen != null)
+            newScreen.onDisplayed();
+        screen = newScreen;
     }
 
     public final void clearScreen() {
-        setScreen(Optional.empty());
+        setScreen(null);
     }
 
     private int prevSizeX = -1;
     private int prevSizeY = -1;
 
     public void render(DrawContext drawContext, float tickDelta) {
-        if (!screen.isPresent() || !ReplayFPS.getConfig().shouldDrawScreens()) return;
+        if (screen == null || !ReplayFPS.getConfig().shouldDrawScreens()) return;
 
         // Don't draw over the game menu.
         if (client.currentScreen instanceof GameMenuScreen) return;
@@ -78,40 +67,38 @@ public class PlaybackScreenManager {
         int sizeY = drawContext.getScaledWindowHeight();
 
         // Mouse is recorded relative to center of screen.
-        float mouseX = this.mouseX + sizeX / 2;
-        float mouseY = this.mouseY + sizeY / 2;
+        float mouseX = this.mouseX + sizeX / 2.0f;
+        float mouseY = this.mouseY + sizeY / 2.0f;
 
         if (prevSizeX != sizeX || prevSizeY != sizeY) {
-            screen.get().init(client, sizeX, sizeY);
+            screen.init(client, sizeX, sizeY);
             prevSizeX = sizeX;
             prevSizeY = sizeY;
         }
 
-        screen.get().render(drawContext, (int) mouseX, (int) mouseY, tickDelta);
+        screen.render(drawContext, (int) mouseX, (int) mouseY, tickDelta);
 
         drawMouse(drawContext, mouseX, mouseY);
     }
 
-    private void drawMouse(DrawContext context, float mouseX, float mouseY) {
-        float x1 = mouseX;
-        float x2 = mouseX + 8;
-        float y1 = mouseY;
-        float y2 = mouseY + 8;
+    private void drawMouse(DrawContext context, float x, float y) {
+        float x2 = x + 8;
+        float y2 = y + 8;
 
         RenderUtils.drawTexturedQuad(MOUSE_TEXTURE,
-                x1, x2, y1, y2, 64,
+                x, x2, y, y2, 64,
                 0, 1, 0, 1, context.getMatrices());
     }
 
     public void tick() {
-        screen.ifPresent(s -> s.tick());
+        if (screen != null) screen.tick();
     }
 
     public MinecraftClient getClient() {
         return client;
     }
 
-    public <T> void openScreen(ScreenState screenState) {
+    public void openScreen(ScreenState screenState) {
         Screen screen = screenState.create(client);
         setScreen(screen);
     }

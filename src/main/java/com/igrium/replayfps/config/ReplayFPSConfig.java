@@ -12,8 +12,7 @@ import net.minecraft.text.Text;
 import java.io.*;
 
 public final class ReplayFPSConfig {
-
-    private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     public static final String CONFIG_FILE = "config/replayfps.json";
 
     private boolean playClientCap = true;
@@ -72,36 +71,35 @@ public final class ReplayFPSConfig {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
                 .setTitle(Text.translatable("title.replayfps.config"));
-                
 
         ConfigCategory general = builder.getOrCreateCategory(Text.translatable("category.replayfps.general"));
         general.addEntry(builder.entryBuilder().startBooleanToggle(Text.translatable("option.replayfps.use_clientcap"), playClientCap)
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("option.replayfps.use_clientcap.tooltip"))
-                .setSaveConsumer(val -> this.setPlayClientCap(val))
+                .setSaveConsumer(this::setPlayClientCap)
                 .build());
-        
+
         ConfigCategory hud = builder.getOrCreateCategory(Text.translatable("category.replayfps.hud"));
         hud.addEntry(builder.entryBuilder().startBooleanToggle(Text.translatable("option.replayfps.drawhud"), drawHud)
                 .setDefaultValue(false)
                 .setTooltip(Text.of("option.replayfps.drawhud.tooltip"))
-                .setSaveConsumer(val -> setDrawHud(val))
+                .setSaveConsumer(this::setDrawHud)
                 .build());
-        
+
         hud.addEntry(builder.entryBuilder().startBooleanToggle(Text.translatable("option.replayfps.drawhotbar"), drawHotbar)
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("option.replayfps.drawhotbar.tooltip"))
-                .setSaveConsumer(val -> setDrawHotbar(val))
+                .setSaveConsumer(this::setDrawHotbar)
                 .build());
 
         hud.addEntry(builder.entryBuilder().startBooleanToggle(Text.translatable("option.replayfps.drawscreens"), drawScreens)
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("option.replayfps.drawscreens"))
-                .setSaveConsumer(val -> setDrawScreens(val))
+                .setSaveConsumer(this::setDrawScreens)
                 .build());
 
         builder.setSavingRunnable(this::save);
-        
+
         return builder.build();
     }
 
@@ -110,7 +108,7 @@ public final class ReplayFPSConfig {
         File configFile = new File(client.runDirectory, CONFIG_FILE);
 
         if (configFile.exists()) {
-            try(BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
                 return gson.fromJson(reader, ReplayFPSConfig.class);
             } catch (Exception e) {
                 ReplayFPS.LOGGER.error("Unable to load Replay FPS config!", e);
@@ -124,13 +122,12 @@ public final class ReplayFPSConfig {
         MinecraftClient client = MinecraftClient.getInstance();
         File configFile = new File(client.runDirectory, CONFIG_FILE);
 
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
             writer.write(gson.toJson(this));
         } catch (Exception e) {
             ReplayFPS.LOGGER.error("Error saving Replay FPS config!", e);
         }
 
-        ReplayFPS.LOGGER.info("Saved config to " + configFile);
+        ReplayFPS.LOGGER.info("Saved config to {}", configFile);
     }
-    
 }

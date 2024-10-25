@@ -5,6 +5,7 @@ import com.igrium.replayfps.core.util.TimecodeProvider;
 import com.replaymod.recording.packet.PacketListener;
 import com.replaymod.replaystudio.replay.ReplayFile;
 import io.netty.channel.ChannelHandlerContext;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,13 +16,15 @@ import java.util.concurrent.ExecutorService;
 
 @Mixin(PacketListener.class)
 public class PacketListenerMixin implements TimecodeProvider {
-
+    @Final
     @Shadow(remap = false)
     private ReplayFile replayFile;
 
+    @Final
     @Shadow(remap = false)
     private ExecutorService saveService;
 
+    @Final
     @Shadow(remap = false)
     private long startTime;
 
@@ -33,9 +36,8 @@ public class PacketListenerMixin implements TimecodeProvider {
 
     @Inject(method = "channelInactive", at = @At("HEAD"), remap = false)
     void channelInactive(ChannelHandlerContext ctx, CallbackInfo ci) {
-        saveService.submit(() -> {
-            RecordingEvents.STOP_RECORDING.invoker().onStopRecording((PacketListener) (Object) this, replayFile);
-        });
+        saveService.submit(() -> RecordingEvents.STOP_RECORDING.invoker()
+                .onStopRecording((PacketListener) (Object) this, replayFile));
     }
 
     @Override
